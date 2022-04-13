@@ -5,7 +5,7 @@ locals {
 module "complete" {
   source = "./../"
 
-  # Autoscaling group
+  ## Autoscaling group
   name                      = local.name
   launch_template_name      = local.name
   min_size                  = 0
@@ -17,20 +17,26 @@ module "complete" {
 
   initial_lifecycle_hooks = [
     {
-      name                 = "SampleStartupLifeCycleHook"
-      default_result       = "CONTINUE"
-      heartbeat_timeout    = 60
-      lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
-      # This could be a rendered data resource
-      notification_metadata = jsonencode({ "hello" = "world" })
+      name                  = "LaunchHook"
+      default_result        = "CONTINUE"
+      heartbeat_timeout     = 90
+      lifecycle_transition  = "autoscaling:EC2_INSTANCE_LAUNCHING"
+      notification_metadata = <<EOF
+{
+  "Greetings": "Dev"
+}
+EOF
     },
     {
-      name                 = "SampleTerminationLifeCycleHook"
-      default_result       = "CONTINUE"
-      heartbeat_timeout    = 180
-      lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
-      # This could be a rendered data resource
-      notification_metadata = jsonencode({ "Bye" = "EC2" })
+      name                  = "TermHook"
+      default_result        = "CONTINUE"
+      heartbeat_timeout     = 180
+      lifecycle_transition  = "autoscaling:EC2_INSTANCE_TERMINATING"
+      notification_metadata = <<EOF
+{
+  "Terminating": "Env"
+}
+EOF
     }
   ]
 
@@ -38,13 +44,29 @@ module "complete" {
     strategy = "Rolling"
     preferences = {
       checkpoint_delay       = 600
-      checkpoint_percentages = [35, 70, 100]
+      checkpoint_percentages = [50, 75, 100]
       instance_warmup        = 300
       min_healthy_percentage = 50
     }
     triggers = ["tag"]
   }
-
+  ## security group: Additional rules
+  security_group_rules = {
+    ingress_http = {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      type        = "ingress"
+    }
+    custom = {
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      type        = "ingress"
+    }
+  }
   # Launch template
   launch_template_description = "Complete launch template example"
   update_default_version      = true
@@ -86,7 +108,22 @@ module "complete" {
   credit_specification = {
     cpu_credits = "standard"
   }
-
+  /*
+  network_interfaces = [
+    {
+      delete_on_termination       = true
+      description                 = "eth0"
+      device_index                = 0
+      associate_public_ip_address = true
+    },
+    {
+      delete_on_termination       = true
+      description                 = "eth1"
+      device_index                = 1
+      associate_public_ip_address = true
+    }
+  ]
+*/
   metadata_options = {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
@@ -110,7 +147,7 @@ module "complete" {
       max_size         = 0
       desired_capacity = 0
       recurrence       = "0 18 * * 1-5" # Mon-Fri in the evening
-      time_zone        = "Europe/Rome"
+      time_zone        = "Africa/Nairobi"
     }
 
     morning = {
@@ -118,14 +155,7 @@ module "complete" {
       max_size         = 1
       desired_capacity = 1
       recurrence       = "0 7 * * 1-5" # Mon-Fri in the morning
-    }
-
-    go-offline-to-celebrate-new-year = {
-      min_size         = 0
-      max_size         = 0
-      desired_capacity = 0
-      start_time       = "2031-12-31T10:00:00Z" # Should be in the future
-      end_time         = "2032-01-01T16:00:00Z"
+      time_zone        = "Africa/Nairobi"
     }
   }
   # Target scaling policy schedule based on average CPU load

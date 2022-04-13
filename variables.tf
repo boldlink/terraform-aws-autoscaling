@@ -426,9 +426,9 @@ variable "tag_specifications" {
 }
 
 variable "security_group_rules" {
-  type        = map(string)
+  type        = any
   description = "The rules block for defining additional ingress and egress rules"
-  default     = {}
+  default     = []
 }
 
 variable "autoscaling_policy" {

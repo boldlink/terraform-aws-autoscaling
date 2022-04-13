@@ -81,13 +81,15 @@ resource "aws_security_group" "main" {
   )
 }
 
-resource "aws_security_group_rule" "sg" {
+resource "aws_security_group_rule" "main" {
   for_each                 = var.security_group_rules
   security_group_id        = aws_security_group.main.id
+  description              = "Additional rules to add to the security group"
   from_port                = lookup(each.value, "from_port", null)
   to_port                  = lookup(each.value, "to_port", null)
   protocol                 = lookup(each.value, "protocol", "tcp")
   type                     = lookup(each.value, "type", null)
+  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
   source_security_group_id = lookup(each.value, "source_security_group_id", null)
 }
 
