@@ -108,7 +108,7 @@ EOF
   credit_specification = {
     cpu_credits = "standard"
   }
-  /*
+
   network_interfaces = [
     {
       delete_on_termination       = true
@@ -123,7 +123,7 @@ EOF
       associate_public_ip_address = true
     }
   ]
-*/
+
   metadata_options = {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
