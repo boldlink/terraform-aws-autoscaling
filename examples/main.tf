@@ -1,5 +1,5 @@
 locals {
-  name = "boldlink-as"
+  name = "boldlink-as-${uuid()}"
 }
 
 module "complete" {
@@ -108,21 +108,6 @@ EOF
   credit_specification = {
     cpu_credits = "standard"
   }
-
-  network_interfaces = [
-    {
-      delete_on_termination       = true
-      description                 = "eth0"
-      device_index                = 0
-      associate_public_ip_address = true
-    },
-    {
-      delete_on_termination       = true
-      description                 = "eth1"
-      device_index                = 1
-      associate_public_ip_address = true
-    }
-  ]
 
   metadata_options = {
     http_endpoint               = "enabled"
