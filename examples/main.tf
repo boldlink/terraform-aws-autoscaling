@@ -1,9 +1,9 @@
 locals {
-  name = "boldlink-as-${uuid()}"
+  name = "boldlink-auto-scaling"
 }
 
 module "complete" {
-  source = "./../"
+  source = "boldlink/autoscaling/aws"
 
   ## Autoscaling group
   name                      = local.name
