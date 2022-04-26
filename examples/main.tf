@@ -50,6 +50,7 @@ EOF
     }
     triggers = ["tag"]
   }
+
   ## security group: Additional rules
   security_group_rules = {
     ingress_http = {
@@ -67,6 +68,7 @@ EOF
       type        = "ingress"
     }
   }
+
   # Launch template
   launch_template_description = "Complete launch template example"
   update_default_version      = true
