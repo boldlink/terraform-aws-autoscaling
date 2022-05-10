@@ -239,12 +239,6 @@ variable "enable_monitoring" {
   default     = false
 }
 
-variable "security_groups" {
-  type        = list(string)
-  description = "List of security groups to use"
-  default     = []
-}
-
 variable "create_launch_template" {
   type        = bool
   description = "Specify whether to create launch template"
@@ -441,24 +435,6 @@ variable "iam_role_path" {
   type        = string
   description = "The path for the iam role"
   default     = "/"
-}
-
-variable "ami_owner" {
-  type        = string
-  description = "The owner of this AMI"
-  default     = "amazon"
-}
-
-variable "ami_name" {
-  type        = string
-  description = "The name of the image"
-  default     = "amzn2-ami-hvm-2.0.*"
-}
-
-variable "ami_architecture" {
-  type        = string
-  description = "The architecture of the image"
-  default     = "arm64"
 }
 
 variable "extra_script" {

@@ -13,7 +13,7 @@ module "complete" {
   name                      = "${local.name}-${random_pet.main.id}"
   launch_template_name      = "${local.name}-${random_pet.main.id}"
   min_size                  = 0
-  max_size                  = 1
+  max_size                  = 2
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
@@ -47,10 +47,10 @@ EOF
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
-      checkpoint_delay       = 600
-      checkpoint_percentages = [50, 75, 100]
-      instance_warmup        = 300
-      min_healthy_percentage = 50
+      checkpoint_delay       = 3600
+      checkpoint_percentages = [25, 50, 100]
+      instance_warmup        = 180
+      min_healthy_percentage = 100
     }
     triggers = ["tag"]
   }

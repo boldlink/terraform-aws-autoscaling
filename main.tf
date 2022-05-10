@@ -1,7 +1,6 @@
 locals {
-  launch_template_name    = coalesce(var.launch_template_name, var.name)
-  launch_template         = var.launch_template_name == null ? join("", aws_launch_template.main.*.name) : var.launch_template_name
-  launch_template_version = var.launch_template_version == null ? join("", aws_launch_template.main.*.latest_version) : var.launch_template_version
+  launch_template         = try(var.launch_template_name, aws_launch_template.main[0].name, null)
+  launch_template_version = try(var.launch_template_version, aws_launch_template.main[0].latest_version, null)
 }
 ############################
 ### Cloudwatch resources
@@ -27,7 +26,7 @@ resource "tls_private_key" "main" {
 resource "aws_key_pair" "main" {
   count      = var.create_key_pair ? 1 : 0
   key_name   = var.name
-  public_key = join("", tls_private_key.main.*.public_key_openssh)
+  public_key = try(tls_private_key.main[0].public_key_openssh, null)
 }
 
 ############################
