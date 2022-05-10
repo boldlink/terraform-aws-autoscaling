@@ -2,12 +2,16 @@ locals {
   name = "boldlink-auto-scaling"
 }
 
+resource "random_pet" "main" {
+  length = 2
+}
+
 module "complete" {
   source = "boldlink/autoscaling/aws"
 
   ## Autoscaling group
-  name                      = local.name
-  launch_template_name      = local.name
+  name                      = "${local.name}-${random_pet.main.id}"
+  launch_template_name      = "${local.name}-${random_pet.main.id}"
   min_size                  = 0
   max_size                  = 1
   desired_capacity          = 1
@@ -123,7 +127,7 @@ EOF
   }
 
   tag = {
-    Name        = "sample-usage-template"
+    Name        = "${local.name}-${random_pet.main.id}"
     Environment = "dev"
   }
 
@@ -149,7 +153,7 @@ EOF
   autoscaling_policy = {
     avg-cpu-policy-greater-than-50 = {
       policy_type               = "TargetTrackingScaling"
-      estimated_instance_warmup = 1200
+      estimated_instance_warmup = 180
       target_tracking_configuration = {
         predefined_metric_specification = {
           predefined_metric_type = "ASGAverageCPUUtilization"
