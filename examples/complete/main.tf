@@ -7,7 +7,8 @@ resource "random_pet" "main" {
 }
 
 module "complete" {
-  source = "boldlink/autoscaling/aws"
+  #source = "boldlink/autoscaling/aws"
+  source = "../../"
 
   ## Autoscaling group
   name                      = "${local.name}-${random_pet.main.id}"

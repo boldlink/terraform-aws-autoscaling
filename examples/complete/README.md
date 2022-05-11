@@ -16,7 +16,7 @@ No requirements.
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_complete"></a> [complete](#module\_complete) | boldlink/autoscaling/aws | n/a |
+| <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
 
 ## Resources
 
@@ -24,8 +24,6 @@ No requirements.
 |------|------|
 | [random_pet.main](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [aws_ami.amazon_linux](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
-| [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [aws_vpc.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Inputs
 
@@ -33,5 +31,7 @@ No inputs.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_outputs"></a> [outputs](#output\_outputs) | Output for various resources in this module |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

@@ -91,7 +91,7 @@ data "template_cloudinit_config" "config" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/scripts/cwldata.sh",
       {
-        log_group = try(aws_cloudwatch_log_group.main[0].name, null),
+        log_group = try(aws_cloudwatch_log_group.main[0].name, ""),
         debug     = var.debug_script,
       }
     )
