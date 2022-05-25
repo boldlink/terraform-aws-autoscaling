@@ -1,18 +1,9 @@
-locals {
-  name = "boldlink-auto-scaling"
-}
-
-resource "random_pet" "main" {
-  length = 2
-}
-
 module "complete" {
-  #source = "boldlink/autoscaling/aws"
   source = "../../"
 
   ## Autoscaling group
-  name                      = "${local.name}-${random_pet.main.id}"
-  launch_template_name      = "${local.name}-${random_pet.main.id}"
+  name                      = "complete-example"
+  launch_template_name      = "complete-example"
   min_size                  = 0
   max_size                  = 2
   desired_capacity          = 1
@@ -128,7 +119,7 @@ EOF
   }
 
   tag = {
-    Name        = "${local.name}-${random_pet.main.id}"
+    Name        = "complete-example"
     Environment = "dev"
   }
 

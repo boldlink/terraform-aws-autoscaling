@@ -1,24 +1,50 @@
+[![Build Status](https://github.com/boldlink/terraform-aws-autoscaling/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/boldlink/terraform-aws-autoscaling/actions)
+
+[<img src="https://avatars.githubusercontent.com/u/25388280?s=200&v=4" width="96"/>](https://boldlink.io)
+
 # AWS Autoscaling Terraform module
 
 ## Description
 This module creates the resources needed to deploy and monitor autoscaled infrastracture in AWS.
 
-Example available [here](https://github.com/boldlink/terraform-aws-autoscaling/tree/main/examples)
+Examples available [here](https://github.com/boldlink/terraform-aws-autoscaling/tree/main/examples)
 
+## Usage
+*NOTE*: These examples use the latest version of this module
+
+```hcl
+module "minimal" {
+  source = "../../"
+
+  ## Autoscaling group
+  name                 = "minimal-example"
+  launch_template_name = "minimal-example"
+  min_size             = 0
+  max_size             = 1
+  availability_zones   = data.aws_availability_zones.available.names
+
+  # Launch template
+  launch_template_description = "minimal launch template example"
+  create_launch_template      = true
+  image_id                    = data.aws_ami.amazon_linux.id
+  instance_type               = "t3.micro"
+}
+```
 ## Documentation
 
 [AWS EC2 Auto Scaling Documentation](https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html)
 
 [Terraform provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#with-latest-version-of-launch-template)
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.11 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
-| <a name="requirement_template"></a> [template](#requirement\_template) | >= 2.1.0 |
-| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 3.0.0 |
+| <a name="requirement_template"></a> [template](#requirement\_template) | >= 2.0.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 3.2.0 |
 
 ## Providers
 
@@ -119,7 +145,7 @@ No modules.
 | <a name="input_rsa_bits"></a> [rsa\_bits](#input\_rsa\_bits) | (Optional) When algorithm is `RSA`, the size of the generated RSA key in bits. Defaults to `2048`. | `number` | `"4096"` | no |
 | <a name="input_schedules"></a> [schedules](#input\_schedules) | Schedules configuration block | `map(any)` | `{}` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | A list of security group IDs to associate. | `list(string)` | `[]` | no |
-| <a name="input_security_group_rules"></a> [security\_group\_rules](#input\_security\_group\_rules) | The rules block for defining additional ingress and egress rules | `any` | `[]` | no |
+| <a name="input_security_group_rules"></a> [security\_group\_rules](#input\_security\_group\_rules) | The rules block for defining additional ingress and egress rules | `any` | `{}` | no |
 | <a name="input_service_linked_role_arn"></a> [service\_linked\_role\_arn](#input\_service\_linked\_role\_arn) | (Optional) The ARN of the service-linked role that the ASG will use to call other AWS services | `string` | `null` | no |
 | <a name="input_sns_kms_master_key_id"></a> [sns\_kms\_master\_key\_id](#input\_sns\_kms\_master\_key\_id) | The kms key to use for encrypting sns topic | `string` | `"alias/aws/sns"` | no |
 | <a name="input_sns_notifications"></a> [sns\_notifications](#input\_sns\_notifications) | (Required) A list of Notification Types that trigger notifications. | `list(string)` | <pre>[<br>  "autoscaling:EC2_INSTANCE_LAUNCH",<br>  "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",<br>  "autoscaling:EC2_INSTANCE_TERMINATE",<br>  "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"<br>]</pre> | no |
@@ -137,7 +163,7 @@ No modules.
 | <a name="input_user_data"></a> [user\_data](#input\_user\_data) | The user data to use when creating instances | `string` | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC to launch resources in | `string` | `null` | no |
 | <a name="input_vpc_zone_identifier"></a> [vpc\_zone\_identifier](#input\_vpc\_zone\_identifier) | (Optional) A list of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Conflicts with `availability_zones`. | `list(string)` | `null` | no |
-| <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | (Default: "10m") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. | `string` | `"10m"` | no |
+| <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | (Default: "10m") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. | `string` | `"1m"` | no |
 | <a name="input_wait_for_elb_capacity"></a> [wait\_for\_elb\_capacity](#input\_wait\_for\_elb\_capacity) | (Optional) Setting this will cause Terraform to wait for exactly this number of healthy instances from this Auto Scaling Group in all attached load balancers on both create and update operations. (Takes precedence over `min_elb_capacity` behavior.) | `number` | `null` | no |
 | <a name="input_warm_pool"></a> [warm\_pool](#input\_warm\_pool) | (Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group. | `map(string)` | `{}` | no |
 
@@ -158,3 +184,25 @@ No modules.
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | ID of the security group. |
 | <a name="output_security_group_name"></a> [security\_group\_name](#output\_security\_group\_name) | The name of the security group |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Third party software
+This repository uses third party software:
+* [pre-commit](https://pre-commit.com/) - Used to help ensure code and documentation consistency
+  * Install with `brew install pre-commit`
+  * Manually use with `pre-commit run`
+* [terraform 0.14.11](https://releases.hashicorp.com/terraform/0.14.11/) For backwards compatibility we are using version 0.14.11 for testing making this the min version tested and without issues with terraform-docs.
+* [terraform-docs](https://github.com/segmentio/terraform-docs) - Used to generate the [Inputs](#Inputs) and [Outputs](#Outputs) sections
+  * Install with `brew install terraform-docs`
+  * Manually use via pre-commit
+* [tflint](https://github.com/terraform-linters/tflint) - Used to lint the Terraform code
+  * Install with `brew install tflint`
+  * Manually use via pre-commit
+
+### Makefile
+The makefile contain in this repo is optimised for linux paths and the main purpose is to execute testing for now.
+* Create all tests:
+`$ make tests`
+* Clean all tests:
+`$ make clean`
+
+#### BOLDLink-SIG 2022
