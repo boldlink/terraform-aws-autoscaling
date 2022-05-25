@@ -4,7 +4,6 @@
 
 # Terraform module example of complete and most common configuration
 
-
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
