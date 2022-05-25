@@ -5,6 +5,5 @@ evaluate-variables: true
 external-modules-download-path: .external_modules
 framework: all
 skip-check:
-- CKV_AWS_23: #Ensure every security groups rule has a description. Description exists in main module
-- CKV_AWS_79: #Ensure Instance Metadata Service Version 1 is not enabled. Included in examples
-#- CKV2_AWS_5: "Ensure that Security Groups are attached to another resource"
+- CKV_AWS_23 #Ensure every security groups rule has a description. Description exists in main module
+- CKV_AWS_79 #Ensure Instance Metadata Service Version 1 is not enabled. Included in examples
