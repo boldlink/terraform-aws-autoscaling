@@ -247,7 +247,7 @@ resource "aws_launch_template" "main" {
   instance_type                        = var.instance_type
   key_name                             = var.key_name
   user_data                            = var.enable_monitoring ? base64encode(data.template_cloudinit_config.config.rendered) : var.user_data
-  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : var.security_group_ids
+  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : merge(var.security_group_ids, aws_security_group.main.id)
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
   disable_api_termination              = var.disable_api_termination
