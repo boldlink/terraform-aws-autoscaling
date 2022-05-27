@@ -1,6 +1,6 @@
 locals {
-  launch_template         = try(var.launch_template_name, aws_launch_template.main[0].name, var.external_launch_template_name, null)
-  launch_template_version = try(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version, null)
+  launch_template         = coalesce(var.launch_template_name, aws_launch_template.main[0].name, var.external_launch_template_name)
+  launch_template_version = coalesce(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version)
 }
 ############################
 ### Cloudwatch resources

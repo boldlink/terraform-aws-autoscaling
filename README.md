@@ -13,17 +13,21 @@ Examples available [here](https://github.com/boldlink/terraform-aws-autoscaling/
 *NOTE*: These examples use the latest version of this module
 
 ```hcl
+locals {
+  name = "minimal-example"
+}
+
 module "minimal" {
   source = "../../"
 
   ## Autoscaling group
-  name                 = "minimal-example"
-  launch_template_name = "minimal-example"
-  min_size             = 1
-  max_size             = 2
-  availability_zones   = data.aws_availability_zones.available.names
+  name               = local.name
+  min_size           = 1
+  max_size           = 2
+  availability_zones = data.aws_availability_zones.available.names
 
   # Launch template
+  #launch_template_name        = local.name
   launch_template_description = "minimal launch template example"
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
@@ -190,6 +194,11 @@ No modules.
 | <a name="output_private_key_pem"></a> [private\_key\_pem](#output\_private\_key\_pem) | The private key data in PEM format. |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | ID of the security group. |
 | <a name="output_security_group_name"></a> [security\_group\_name](#output\_security\_group\_name) | The name of the security group |
+| <a name="output_template_arn"></a> [template\_arn](#output\_template\_arn) | Amazon Resource Name (ARN) of the launch template. |
+| <a name="output_template_id"></a> [template\_id](#output\_template\_id) | The ID of the launch template. |
+| <a name="output_template_latest_version"></a> [template\_latest\_version](#output\_template\_latest\_version) | The latest version of the launch template. |
+| <a name="output_template_name"></a> [template\_name](#output\_template\_name) | The name of the launch template |
+| <a name="output_template_tags_all"></a> [template\_tags\_all](#output\_template\_tags\_all) | A map of tags assigned to the resource |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Third party software

@@ -1,15 +1,18 @@
+locals {
+  name = "complete-example"
+}
+
 module "complete" {
   source = "../../"
 
   ## Autoscaling group
-  name                      = "complete-example"
-  launch_template_name      = "complete-example"
+  name                      = local.name
   min_size                  = 1
   max_size                  = 2
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  availability_zones        = data.aws_availability_zones.available.names
 
   initial_lifecycle_hooks = [
     {
@@ -67,6 +70,7 @@ EOF
 
   # Launch template
   launch_template_description = "Complete launch template example"
+  launch_template_name        = local.name
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
