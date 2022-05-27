@@ -1,6 +1,6 @@
 locals {
-  launch_template         = try(var.launch_template_name, aws_launch_template.main[0].name, null)
-  launch_template_version = try(var.launch_template_version, aws_launch_template.main[0].latest_version, null)
+  launch_template         = try(var.launch_template_name, aws_launch_template.main[0].name, var.external_launch_template_name, null)
+  launch_template_version = try(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version, null)
 }
 ############################
 ### Cloudwatch resources
@@ -238,7 +238,7 @@ resource "aws_autoscaling_group" "main" {
 ### Launch Template
 #####################################
 resource "aws_launch_template" "main" {
-  count                                = var.create_launch_template ? 1 : 0
+  count                                = var.create_launch_template && var.external_launch_template_name == null ? 1 : 0
   name                                 = var.launch_template_name
   name_prefix                          = var.launch_template_name_prefix
   description                          = var.launch_template_description

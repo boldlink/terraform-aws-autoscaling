@@ -26,6 +26,19 @@ variable "user_data" {
   default     = null
 }
 
+## For external launch template, i.e launch template not created by this module
+variable "external_launch_template_name" {
+  type        = string
+  description = "The name of the external launch template"
+  default     = null
+}
+
+variable "external_launch_template_version" {
+  type        = string
+  description = "The version of the external launch template"
+  default     = null
+}
+
 variable "availability_zones" {
   type        = list(string)
   description = "(Optional) A list of one or more availability zones for the group. Used for EC2-Classic, attaching a network interface via id from a launch template and default subnets when not specified with `vpc_zone_identifier` argument. Conflicts with `vpc_zone_identifier`."
