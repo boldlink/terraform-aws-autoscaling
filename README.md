@@ -19,8 +19,8 @@ module "minimal" {
   ## Autoscaling group
   name                 = "minimal-example"
   launch_template_name = "minimal-example"
-  min_size             = 0
-  max_size             = 1
+  min_size             = 1
+  max_size             = 2
   availability_zones   = data.aws_availability_zones.available.names
 
   # Launch template
@@ -28,6 +28,11 @@ module "minimal" {
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
   instance_type               = "t3.micro"
+
+  metadata_options = {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 }
 ```
 ## Documentation
