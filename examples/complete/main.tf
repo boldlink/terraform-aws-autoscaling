@@ -4,7 +4,7 @@ module "complete" {
   ## Autoscaling group
   name                      = "complete-example"
   launch_template_name      = "complete-example"
-  min_size                  = 0
+  min_size                  = 1
   max_size                  = 2
   desired_capacity          = 1
   wait_for_capacity_timeout = 0

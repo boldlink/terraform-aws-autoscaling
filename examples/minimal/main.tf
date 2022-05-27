@@ -4,8 +4,8 @@ module "minimal" {
   ## Autoscaling group
   name                 = "minimal-example"
   launch_template_name = "minimal-example"
-  min_size             = 0
-  max_size             = 1
+  min_size             = 1
+  max_size             = 2
   availability_zones   = data.aws_availability_zones.available.names
 
   # Launch template
