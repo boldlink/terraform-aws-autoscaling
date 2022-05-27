@@ -1,0 +1,8 @@
+directory:
+- .
+download-external-modules: false
+evaluate-variables: true
+external-modules-download-path: .external_modules
+framework: all
+skip-check:
+- CKV_AWS_79 #Ensure Instance Metadata Service Version 1 is not enabled. Included in examples

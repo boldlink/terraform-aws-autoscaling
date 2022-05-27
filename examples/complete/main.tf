@@ -1,19 +1,18 @@
 locals {
-  name = "boldlink-as-${uuid()}"
+  name = "complete-example"
 }
 
 module "complete" {
-  source = "./../"
+  source = "../../"
 
   ## Autoscaling group
   name                      = local.name
-  launch_template_name      = local.name
-  min_size                  = 0
-  max_size                  = 1
+  min_size                  = 1
+  max_size                  = 2
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  availability_zones        = data.aws_availability_zones.available.names
 
   initial_lifecycle_hooks = [
     {
@@ -43,13 +42,14 @@ EOF
   instance_refresh = {
     strategy = "Rolling"
     preferences = {
-      checkpoint_delay       = 600
-      checkpoint_percentages = [50, 75, 100]
-      instance_warmup        = 300
-      min_healthy_percentage = 50
+      checkpoint_delay       = 3600
+      checkpoint_percentages = [25, 50, 100]
+      instance_warmup        = 180
+      min_healthy_percentage = 100
     }
     triggers = ["tag"]
   }
+
   ## security group: Additional rules
   security_group_rules = {
     ingress_http = {
@@ -67,8 +67,10 @@ EOF
       type        = "ingress"
     }
   }
+
   # Launch template
   launch_template_description = "Complete launch template example"
+  launch_template_name        = local.name
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
@@ -121,7 +123,7 @@ EOF
   }
 
   tag = {
-    Name        = "sample-usage-template"
+    Name        = "complete-example"
     Environment = "dev"
   }
 
@@ -147,7 +149,7 @@ EOF
   autoscaling_policy = {
     avg-cpu-policy-greater-than-50 = {
       policy_type               = "TargetTrackingScaling"
-      estimated_instance_warmup = 1200
+      estimated_instance_warmup = 180
       target_tracking_configuration = {
         predefined_metric_specification = {
           predefined_metric_type = "ASGAverageCPUUtilization"

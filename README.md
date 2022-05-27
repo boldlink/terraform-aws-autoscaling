@@ -1,21 +1,59 @@
+[![Build Status](https://github.com/boldlink/terraform-aws-autoscaling/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/boldlink/terraform-aws-autoscaling/actions)
+
+[<img src="https://avatars.githubusercontent.com/u/25388280?s=200&v=4" width="96"/>](https://boldlink.io)
+
 # AWS Autoscaling Terraform module
 
 ## Description
 This module creates the resources needed to deploy and monitor autoscaled infrastracture in AWS.
 
-Example available [here](https://github.com/boldlink/terraform-aws-autoscaling/tree/main/examples)
+Examples available [here](https://github.com/boldlink/terraform-aws-autoscaling/tree/main/examples)
 
+## Usage
+*NOTE*: These examples use the latest version of this module
+
+```hcl
+locals {
+  name = "minimal-example"
+}
+
+module "minimal" {
+  source = "../../"
+
+  ## Autoscaling group
+  name               = local.name
+  min_size           = 1
+  max_size           = 2
+  availability_zones = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+
+  # Launch template
+  launch_template_name        = local.name
+  launch_template_description = "minimal launch template example"
+  create_launch_template      = true
+  image_id                    = data.aws_ami.amazon_linux.id
+  instance_type               = "t3.micro"
+
+  metadata_options = {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+}
+```
 ## Documentation
 
 [AWS EC2 Auto Scaling Documentation](https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html)
 
 [Terraform provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group#with-latest-version-of-launch-template)
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.11 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| <a name="requirement_template"></a> [template](#requirement\_template) | >= 2.0.0 |
+| <a name="requirement_tls"></a> [tls](#requirement\_tls) | >= 3.2.0 |
 
 ## Providers
 
@@ -48,7 +86,6 @@ No modules.
 | [aws_security_group_rule.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
 | [aws_sns_topic.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
 | [tls_private_key.main](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
-| [aws_ami.ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_iam_policy_document.asg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [template_cloudinit_config.config](https://registry.terraform.io/providers/hashicorp/template/latest/docs/data-sources/cloudinit_config) | data source |
@@ -57,9 +94,6 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_ami_architecture"></a> [ami\_architecture](#input\_ami\_architecture) | The architecture of the image | `string` | `"arm64"` | no |
-| <a name="input_ami_name"></a> [ami\_name](#input\_ami\_name) | The name of the image | `string` | `"amzn2-ami-hvm-2.0.*"` | no |
-| <a name="input_ami_owner"></a> [ami\_owner](#input\_ami\_owner) | The owner of this AMI | `string` | `"amazon"` | no |
 | <a name="input_autoscaling_policy"></a> [autoscaling\_policy](#input\_autoscaling\_policy) | The configuration block for various autoscaling policies | `any` | `{}` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | (Optional) A list of one or more availability zones for the group. Used for EC2-Classic, attaching a network interface via id from a launch template and default subnets when not specified with `vpc_zone_identifier` argument. Conflicts with `vpc_zone_identifier`. | `list(string)` | `null` | no |
 | <a name="input_block_device_mappings"></a> [block\_device\_mappings](#input\_block\_device\_mappings) | The storage device mapping block | `list(any)` | `[]` | no |
@@ -80,6 +114,8 @@ No modules.
 | <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Choose whether to enable monotoring | `bool` | `false` | no |
 | <a name="input_enabled_metrics"></a> [enabled\_metrics](#input\_enabled\_metrics) | A list of metrics to collect. | `list(string)` | <pre>[<br>  "GroupMinSize",<br>  "GroupMaxSize",<br>  "GroupDesiredCapacity",<br>  "GroupInServiceInstances",<br>  "GroupPendingInstances",<br>  "GroupStandbyInstances",<br>  "GroupTerminatingInstances",<br>  "GroupTotalInstances"<br>]</pre> | no |
 | <a name="input_enclave_options"></a> [enclave\_options](#input\_enclave\_options) | (Optional) Enable Nitro Enclaves on launched instances. | `map(string)` | `{}` | no |
+| <a name="input_external_launch_template_name"></a> [external\_launch\_template\_name](#input\_external\_launch\_template\_name) | The name of the external launch template | `string` | `null` | no |
+| <a name="input_external_launch_template_version"></a> [external\_launch\_template\_version](#input\_external\_launch\_template\_version) | The version of the external launch template | `string` | `null` | no |
 | <a name="input_extra_script"></a> [extra\_script](#input\_extra\_script) | The name of the extra script | `string` | `""` | no |
 | <a name="input_force_delete"></a> [force\_delete](#input\_force\_delete) | (Optional) Allows deleting the Auto Scaling Group without waiting for all instances in the pool to terminate. You can force an Auto Scaling Group to delete even if it's in the process of scaling a resource. Normally, Terraform drains all the instances before deleting the group. This bypasses that behavior and potentially leaves resources dangling. | `bool` | `null` | no |
 | <a name="input_health_check_grace_period"></a> [health\_check\_grace\_period](#input\_health\_check\_grace\_period) | (Optional, Default: 300) Time (in seconds) after instance comes into service before checking health. | `number` | `300` | no |
@@ -120,8 +156,7 @@ No modules.
 | <a name="input_rsa_bits"></a> [rsa\_bits](#input\_rsa\_bits) | (Optional) When algorithm is `RSA`, the size of the generated RSA key in bits. Defaults to `2048`. | `number` | `"4096"` | no |
 | <a name="input_schedules"></a> [schedules](#input\_schedules) | Schedules configuration block | `map(any)` | `{}` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | A list of security group IDs to associate. | `list(string)` | `[]` | no |
-| <a name="input_security_group_rules"></a> [security\_group\_rules](#input\_security\_group\_rules) | The rules block for defining additional ingress and egress rules | `any` | `[]` | no |
-| <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | List of security groups to use | `list(string)` | `[]` | no |
+| <a name="input_security_group_rules"></a> [security\_group\_rules](#input\_security\_group\_rules) | The rules block for defining additional ingress and egress rules | `any` | `{}` | no |
 | <a name="input_service_linked_role_arn"></a> [service\_linked\_role\_arn](#input\_service\_linked\_role\_arn) | (Optional) The ARN of the service-linked role that the ASG will use to call other AWS services | `string` | `null` | no |
 | <a name="input_sns_kms_master_key_id"></a> [sns\_kms\_master\_key\_id](#input\_sns\_kms\_master\_key\_id) | The kms key to use for encrypting sns topic | `string` | `"alias/aws/sns"` | no |
 | <a name="input_sns_notifications"></a> [sns\_notifications](#input\_sns\_notifications) | (Required) A list of Notification Types that trigger notifications. | `list(string)` | <pre>[<br>  "autoscaling:EC2_INSTANCE_LAUNCH",<br>  "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",<br>  "autoscaling:EC2_INSTANCE_TERMINATE",<br>  "autoscaling:EC2_INSTANCE_TERMINATE_ERROR"<br>]</pre> | no |
@@ -139,7 +174,7 @@ No modules.
 | <a name="input_user_data"></a> [user\_data](#input\_user\_data) | The user data to use when creating instances | `string` | `null` | no |
 | <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC to launch resources in | `string` | `null` | no |
 | <a name="input_vpc_zone_identifier"></a> [vpc\_zone\_identifier](#input\_vpc\_zone\_identifier) | (Optional) A list of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Conflicts with `availability_zones`. | `list(string)` | `null` | no |
-| <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | (Default: "10m") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. | `string` | `"10m"` | no |
+| <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | (Default: "10m") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. | `string` | `"1m"` | no |
 | <a name="input_wait_for_elb_capacity"></a> [wait\_for\_elb\_capacity](#input\_wait\_for\_elb\_capacity) | (Optional) Setting this will cause Terraform to wait for exactly this number of healthy instances from this Auto Scaling Group in all attached load balancers on both create and update operations. (Takes precedence over `min_elb_capacity` behavior.) | `number` | `null` | no |
 | <a name="input_warm_pool"></a> [warm\_pool](#input\_warm\_pool) | (Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group. | `map(string)` | `{}` | no |
 
@@ -159,4 +194,31 @@ No modules.
 | <a name="output_private_key_pem"></a> [private\_key\_pem](#output\_private\_key\_pem) | The private key data in PEM format. |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | ID of the security group. |
 | <a name="output_security_group_name"></a> [security\_group\_name](#output\_security\_group\_name) | The name of the security group |
+| <a name="output_template_arn"></a> [template\_arn](#output\_template\_arn) | Amazon Resource Name (ARN) of the launch template. |
+| <a name="output_template_id"></a> [template\_id](#output\_template\_id) | The ID of the launch template. |
+| <a name="output_template_latest_version"></a> [template\_latest\_version](#output\_template\_latest\_version) | The latest version of the launch template. |
+| <a name="output_template_name"></a> [template\_name](#output\_template\_name) | The name of the launch template |
+| <a name="output_template_tags_all"></a> [template\_tags\_all](#output\_template\_tags\_all) | A map of tags assigned to the resource |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Third party software
+This repository uses third party software:
+* [pre-commit](https://pre-commit.com/) - Used to help ensure code and documentation consistency
+  * Install with `brew install pre-commit`
+  * Manually use with `pre-commit run`
+* [terraform 0.14.11](https://releases.hashicorp.com/terraform/0.14.11/) For backwards compatibility we are using version 0.14.11 for testing making this the min version tested and without issues with terraform-docs.
+* [terraform-docs](https://github.com/segmentio/terraform-docs) - Used to generate the [Inputs](#Inputs) and [Outputs](#Outputs) sections
+  * Install with `brew install terraform-docs`
+  * Manually use via pre-commit
+* [tflint](https://github.com/terraform-linters/tflint) - Used to lint the Terraform code
+  * Install with `brew install tflint`
+  * Manually use via pre-commit
+
+### Makefile
+The makefile contain in this repo is optimised for linux paths and the main purpose is to execute testing for now.
+* Create all tests:
+`$ make tests`
+* Clean all tests:
+`$ make clean`
+
+#### BOLDLink-SIG 2022

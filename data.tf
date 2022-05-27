@@ -1,19 +1,3 @@
-##########################
-### Get the latest AMI
-##########################
-data "aws_ami" "ami" {
-  most_recent = true
-  owners      = [var.ami_owner]
-  filter {
-    name   = "name"
-    values = [var.ami_name]
-  }
-  filter {
-    name   = "architecture"
-    values = [var.ami_architecture]
-  }
-}
-
 data "aws_iam_policy_document" "assume_role" {
   statement {
     effect = "Allow"
@@ -107,7 +91,7 @@ data "template_cloudinit_config" "config" {
     content_type = "text/x-shellscript"
     content = templatefile("${path.module}/scripts/cwldata.sh",
       {
-        log_group = join("", aws_cloudwatch_log_group.main.*.name),
+        log_group = try(aws_cloudwatch_log_group.main[0].name, ""),
         debug     = var.debug_script,
       }
     )

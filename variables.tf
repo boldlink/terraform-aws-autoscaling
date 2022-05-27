@@ -26,6 +26,19 @@ variable "user_data" {
   default     = null
 }
 
+## For external launch template, i.e launch template not created by this module
+variable "external_launch_template_name" {
+  type        = string
+  description = "The name of the external launch template"
+  default     = null
+}
+
+variable "external_launch_template_version" {
+  type        = string
+  description = "The version of the external launch template"
+  default     = null
+}
+
 variable "availability_zones" {
   type        = list(string)
   description = "(Optional) A list of one or more availability zones for the group. Used for EC2-Classic, attaching a network interface via id from a launch template and default subnets when not specified with `vpc_zone_identifier` argument. Conflicts with `vpc_zone_identifier`."
@@ -152,7 +165,7 @@ variable "enabled_metrics" {
 variable "wait_for_capacity_timeout" {
   type        = string
   description = "(Default: \"10m\") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out."
-  default     = "10m"
+  default     = "1m"
 }
 
 variable "min_elb_capacity" {
@@ -237,12 +250,6 @@ variable "enable_monitoring" {
   type        = bool
   description = "Choose whether to enable monotoring"
   default     = false
-}
-
-variable "security_groups" {
-  type        = list(string)
-  description = "List of security groups to use"
-  default     = []
 }
 
 variable "create_launch_template" {
@@ -428,7 +435,7 @@ variable "tag_specifications" {
 variable "security_group_rules" {
   type        = any
   description = "The rules block for defining additional ingress and egress rules"
-  default     = []
+  default     = {}
 }
 
 variable "autoscaling_policy" {
@@ -441,24 +448,6 @@ variable "iam_role_path" {
   type        = string
   description = "The path for the iam role"
   default     = "/"
-}
-
-variable "ami_owner" {
-  type        = string
-  description = "The owner of this AMI"
-  default     = "amazon"
-}
-
-variable "ami_name" {
-  type        = string
-  description = "The name of the image"
-  default     = "amzn2-ami-hvm-2.0.*"
-}
-
-variable "ami_architecture" {
-  type        = string
-  description = "The architecture of the image"
-  default     = "arm64"
 }
 
 variable "extra_script" {
