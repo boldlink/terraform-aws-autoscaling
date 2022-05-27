@@ -62,10 +62,11 @@ resource "aws_iam_role_policy_attachment" "main" {
 ############################
 resource "aws_security_group" "main" {
   name        = var.name
-  description = "${var.name} ASG Group Security Group"
+  description = "ASG Group Security Group"
   vpc_id      = var.vpc_id
 
   egress {
+    description = "All all egress traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
