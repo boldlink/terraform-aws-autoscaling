@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add: More options in the complete example
 - Feature: Ability for userdata packages to be installed in different OS flavours
 - Feature: Dashboards integration for Cloudwatch
+- Feature: Tag inheritance for created resources
 
 ## [1.1.0] - 2022-05-25
 ### Added
