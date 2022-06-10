@@ -12,30 +12,30 @@ module "complete" {
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = data.aws_availability_zones.available.names
+  availability_zones        = [data.aws_availability_zones.available.names[0]]
 
   initial_lifecycle_hooks = [
     {
-      name                  = "LaunchHook"
-      default_result        = "CONTINUE"
-      heartbeat_timeout     = 90
-      lifecycle_transition  = "autoscaling:EC2_INSTANCE_LAUNCHING"
-      notification_metadata = <<EOF
-{
-  "Greetings": "Dev"
-}
-EOF
+      name                 = "LaunchHook"
+      default_result       = "CONTINUE"
+      heartbeat_timeout    = 90
+      lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
+      notification_metadata = jsonencode(
+        {
+          Greetings = "Dev"
+        }
+      )
     },
     {
-      name                  = "TermHook"
-      default_result        = "CONTINUE"
-      heartbeat_timeout     = 180
-      lifecycle_transition  = "autoscaling:EC2_INSTANCE_TERMINATING"
-      notification_metadata = <<EOF
-{
-  "Terminating": "Env"
-}
-EOF
+      name                 = "TermHook"
+      default_result       = "CONTINUE"
+      heartbeat_timeout    = 180
+      lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
+      notification_metadata = jsonencode(
+        {
+          Terminating = "Env"
+        }
+      )
     }
   ]
 
@@ -87,7 +87,8 @@ EOF
         volume_size           = 20
         volume_type           = "gp2"
       }
-      }, {
+    },
+    {
       device_name = "/dev/sda1"
       no_device   = 1
       ebs = {
@@ -101,6 +102,21 @@ EOF
   capacity_reservation_specification = {
     capacity_reservation_preference = "open"
   }
+
+  network_interfaces = [
+    {
+      delete_on_termination = true
+      description           = "eth0"
+      device_index          = 0
+      subnet_id             = data.aws_subnet.default.id
+    },
+    {
+      delete_on_termination = true
+      description           = "eth1"
+      device_index          = 1
+      subnet_id             = data.aws_subnet.default.id
+    }
+  ]
 
   cpu_options = {
     core_count       = 1

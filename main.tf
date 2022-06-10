@@ -380,25 +380,25 @@ resource "aws_launch_template" "main" {
   dynamic "network_interfaces" {
     for_each = var.network_interfaces
     content {
-      associate_carrier_ip_address = lookup(network_interfaces.value, "associate_carrier_ip_address", null)
-      associate_public_ip_address  = lookup(network_interfaces.value, "associate_public_ip_address", null)
-      delete_on_termination        = lookup(network_interfaces.value, "delete_on_termination", null)
-      description                  = lookup(network_interfaces.value, "description", null)
-      device_index                 = lookup(network_interfaces.value, "device_index", null)
-      interface_type               = lookup(network_interfaces.value, "interface_type", null)
-      ipv4_prefix_count            = lookup(network_interfaces.value, "ipv4_prefix_count", null)
-      ipv4_prefixes                = lookup(network_interfaces.value, "ipv4_prefixes", null)
-      ipv4_addresses               = lookup(network_interfaces.value, "ipv4_addresses", null) != null ? network_interfaces.value.ipv4_addresses : []
-      ipv4_address_count           = lookup(network_interfaces.value, "ipv4_address_count", null)
-      ipv6_prefix_count            = lookup(network_interfaces.value, "ipv6_prefix_count", null)
-      ipv6_prefixes                = lookup(network_interfaces.value, "ipv6_prefixes", [])
-      ipv6_addresses               = lookup(network_interfaces.value, "ipv6_addresses", null) != null ? network_interfaces.value.ipv6_addresses : []
-      ipv6_address_count           = lookup(network_interfaces.value, "ipv6_address_count", null)
-      network_interface_id         = lookup(network_interfaces.value, "network_interface_id", null)
-      network_card_index           = lookup(network_interfaces.value, "network_card_index", null)
-      private_ip_address           = lookup(network_interfaces.value, "private_ip_address", null)
-      security_groups              = lookup(network_interfaces.value, "security_groups", null) != null ? network_interfaces.value.security_groups : []
-      subnet_id                    = lookup(network_interfaces.value, "subnet_id", null)
+      associate_carrier_ip_address = try(network_interfaces.value.associate_carrier_ip_address, null)
+      associate_public_ip_address  = try(network_interfaces.value.associate_public_ip_address, null)
+      delete_on_termination        = try(network_interfaces.value.delete_on_termination, null)
+      description                  = try(network_interfaces.value.description, null)
+      device_index                 = try(network_interfaces.value.device_index, null)
+      interface_type               = try(network_interfaces.value.interface_type, null)
+      ipv4_prefix_count            = try(network_interfaces.value.ipv4_prefix_count, null)
+      ipv4_prefixes                = try(network_interfaces.value.ipv4_prefixes, null)
+      ipv4_addresses               = try(network_interfaces.value.ipv4_addresses, null)
+      ipv4_address_count           = try(network_interfaces.value.ipv4_address_count, null)
+      ipv6_prefix_count            = try(network_interfaces.value.ipv6_prefix_count, null)
+      ipv6_prefixes                = try(network_interfaces.value.ipv6_prefixes, [])
+      ipv6_addresses               = try(network_interfaces.value.ipv6_addresses, null)
+      ipv6_address_count           = try(network_interfaces.value.ipv6_address_count, null)
+      network_interface_id         = try(network_interfaces.value.network_interface_id, null)
+      network_card_index           = try(network_interfaces.value.network_card_index, null)
+      private_ip_address           = try(network_interfaces.value.private_ip_address, null)
+      security_groups              = try(network_interfaces.value.security_groups, null)
+      subnet_id                    = try(network_interfaces.value.subnet_id, null)
     }
   }
 
