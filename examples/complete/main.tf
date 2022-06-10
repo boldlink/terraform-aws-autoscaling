@@ -135,7 +135,7 @@ module "complete" {
   }
 
   placement = {
-    availability_zone = "eu-west-1b"
+    availability_zone = data.aws_availability_zones.available.names[0]
   }
 
   tag = {
