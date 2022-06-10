@@ -409,7 +409,7 @@ variable "metadata_options" {
 }
 
 variable "network_interfaces" {
-  type        = list(any)
+  type        = any
   description = "(Optional) Customize network interfaces to be attached at instance boot time."
   default     = []
 }
