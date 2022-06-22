@@ -414,6 +414,30 @@ variable "network_interfaces" {
   default     = []
 }
 
+variable "create_instance_profile" {
+  type        = bool
+  description = "Specify whether to create instance profile using the module."
+  default     = false
+}
+
+variable "iam_instance_profile" {
+  type        = string
+  description = "Provide an iam_instance_profile for the instances to be created."
+  default     = null
+}
+
+variable "install_cloudwatch_agent" {
+  type        = bool
+  description = "Specify whether to have cloudwatch agent installed in created instances"
+  default     = false
+}
+
+variable "additional_role_policy_document" {
+  type        = string
+  description = "Additional policy document to add to the created IAM role."
+  default     = null
+}
+
 variable "placement" {
   type        = map(string)
   description = "(Optional) The placement of the instance."
@@ -432,16 +456,40 @@ variable "tag_specifications" {
   default     = []
 }
 
-variable "security_group_rules" {
+variable "security_group_ingress" {
   type        = any
-  description = "The rules block for defining additional ingress and egress rules"
-  default     = {}
+  description = "The rules block for defining additional ingress rules"
+  default     = []
+}
+
+variable "security_group_egress" {
+  type        = any
+  description = "The rules block for defining additional egress rules"
+  default     = []
 }
 
 variable "autoscaling_policy" {
   type        = any
   description = "The configuration block for various autoscaling policies"
   default     = {}
+}
+
+variable "enable_key_rotation" {
+  description = "Choose whether to enable key rotation"
+  type        = bool
+  default     = true
+}
+
+variable "key_deletion_window_in_days" {
+  description = "The number of days before the key is deleted"
+  type        = number
+  default     = 7
+}
+
+variable "retention_in_days" {
+  description = "Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire."
+  type        = number
+  default     = 1827
 }
 
 variable "iam_role_path" {

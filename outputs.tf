@@ -64,12 +64,12 @@ output "security_group_name" {
 ### IAM Role
 ##################################
 output "iam_role_arn" {
-  value       = aws_iam_role.main.arn
+  value       = aws_iam_role.main.*.arn
   description = "Amazon Resource Name (ARN) specifying the role."
 }
 
 output "iam_role_name" {
-  value       = aws_iam_role.main.name
+  value       = aws_iam_role.main.*.name
   description = "Name of the role."
 }
 

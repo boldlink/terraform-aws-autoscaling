@@ -51,22 +51,20 @@ module "complete" {
   }
 
   ## security group: Additional rules
-  security_group_rules = {
-    ingress_http = {
+  security_group_ingress = [
+    {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-      type        = "ingress"
-    }
-    custom = {
-      from_port   = 8080
-      to_port     = 8080
+    },
+    {
+      from_port   = 22
+      to_port     = 22
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-      type        = "ingress"
     }
-  }
+  ]
 
   # Launch template
   launch_template_description = "Complete launch template example"
@@ -75,7 +73,9 @@ module "complete" {
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
   instance_type               = "t3.micro"
-  ebs_optimized               = true
+  create_instance_profile     = true
+  install_cloudwatch_agent    = true
+  create_key_pair             = true
 
   block_device_mappings = [
     {
@@ -105,34 +105,13 @@ module "complete" {
 
   network_interfaces = [
     {
-      delete_on_termination = true
-      description           = "eth0"
-      device_index          = 0
-      subnet_id             = data.aws_subnet.default.id
-    },
-    {
-      delete_on_termination = true
-      description           = "eth1"
-      device_index          = 1
-      subnet_id             = data.aws_subnet.default.id
+      delete_on_termination       = true
+      associate_public_ip_address = true
+      description                 = "eth0"
+      device_index                = 0
+      subnet_id                   = data.aws_subnet.default.id
     }
   ]
-
-  cpu_options = {
-    core_count       = 1
-    threads_per_core = 1
-  }
-
-  credit_specification = {
-    cpu_credits = "standard"
-  }
-
-  metadata_options = {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
-    http_put_response_hop_limit = 32
-    instance_metadata_tags      = "enabled"
-  }
 
   placement = {
     availability_zone = data.aws_availability_zones.available.names[0]
