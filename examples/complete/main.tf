@@ -1,5 +1,17 @@
-locals {
-  name = "complete-example"
+module "vpc" {
+  source               = "git::https://github.com/boldlink/terraform-aws-vpc.git?ref=2.0.3"
+  cidr_block           = local.cidr_block
+  name                 = local.name
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  account              = data.aws_caller_identity.current.account_id
+  region               = data.aws_region.current.name
+
+  ## public Subnets
+  public_subnets          = local.public_subnets
+  availability_zones      = local.azs
+  map_public_ip_on_launch = true
+  tag_env                 = local.tag_env
 }
 
 module "complete" {
@@ -12,7 +24,7 @@ module "complete" {
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = [data.aws_availability_zones.available.names[0]]
+  availability_zones        = [local.azs[0]]
 
   initial_lifecycle_hooks = [
     {
@@ -109,7 +121,7 @@ module "complete" {
       associate_public_ip_address = true
       description                 = "eth0"
       device_index                = 0
-      subnet_id                   = data.aws_subnet.default.id
+      subnet_id                   = flatten(module.vpc.public_subnet_id)[0]
     }
   ]
 
