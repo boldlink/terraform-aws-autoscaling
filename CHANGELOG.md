@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature: Tag inheritance for created resources
 - Feature: Expand the complete example further
 - Feature: Add updated features from tf resource page
+- Fix: CKV_AWS_79 #Ensure Instance Metadata Service Version 1 is not enabled. Included in examples
+- Fix: CKV_AWS_111 #Ensure IAM policies does not allow write access without constraints
+- Fix: CKV_AWS_109 #Ensure IAM policies does not allow permissions management / resource exposure without constraints
 
 ## [1.2.0] - 2022-06-22
 ### Changes
