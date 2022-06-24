@@ -74,7 +74,7 @@ module "complete" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = [local.cidr_block]
     }
   ]
 
@@ -126,7 +126,7 @@ module "complete" {
   ]
 
   placement = {
-    availability_zone = data.aws_availability_zones.available.names[0]
+    availability_zone = local.azs[0]
   }
 
   tag = {
