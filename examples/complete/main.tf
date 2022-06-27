@@ -34,7 +34,7 @@ module "complete" {
       lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
       notification_metadata = jsonencode(
         {
-          Greetings = "Dev"
+          Launching = "Dev"
         }
       )
     },
@@ -45,7 +45,7 @@ module "complete" {
       lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
       notification_metadata = jsonencode(
         {
-          Terminating = "Env"
+          Terminating = "Dev"
         }
       )
     }
@@ -68,7 +68,7 @@ module "complete" {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
+      cidr_blocks = [local.cidr_block]
     },
     {
       from_port   = 22
@@ -84,11 +84,10 @@ module "complete" {
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.micro"
+  instance_type               = "t2.micro"
   create_instance_profile     = true
   install_cloudwatch_agent    = true
   create_key_pair             = true
-
   block_device_mappings = [
     {
       # Root volume
@@ -110,7 +109,6 @@ module "complete" {
       }
     }
   ]
-
   capacity_reservation_specification = {
     capacity_reservation_preference = "open"
   }
@@ -141,7 +139,7 @@ module "complete" {
       max_size         = 0
       desired_capacity = 0
       recurrence       = "0 18 * * 1-5" # Mon-Fri in the evening
-      time_zone        = "Africa/Nairobi"
+      time_zone        = "GMT"
     }
 
     morning = {
@@ -149,7 +147,7 @@ module "complete" {
       max_size         = 1
       desired_capacity = 1
       recurrence       = "0 7 * * 1-5" # Mon-Fri in the morning
-      time_zone        = "Africa/Nairobi"
+      time_zone        = "GMT"
     }
   }
   # Target scaling policy schedule based on average CPU load

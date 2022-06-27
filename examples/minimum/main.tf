@@ -16,7 +16,7 @@ module "minimal" {
   launch_template_description = "minimal launch template example"
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.micro"
+  instance_type               = "t2.micro"
 
   metadata_options = {
     http_endpoint = "enabled"
