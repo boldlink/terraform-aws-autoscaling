@@ -60,8 +60,7 @@ module "minimal" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.20.0 |
-| <a name="provider_null"></a> [null](#provider\_null) | 3.1.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.20.1 |
 | <a name="provider_template"></a> [template](#provider\_template) | 2.2.0 |
 | <a name="provider_tls"></a> [tls](#provider\_tls) | 3.4.0 |
 
@@ -89,9 +88,10 @@ No modules.
 | [aws_key_pair.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/key_pair) | resource |
 | [aws_kms_key.cloudwatch](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/kms_key) | resource |
 | [aws_launch_template.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
+| [aws_secretsmanager_secret.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
+| [aws_secretsmanager_secret_version.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [aws_security_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_sns_topic.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/sns_topic) | resource |
-| [null_resource.local_save_ec2_keypair](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [tls_private_key.main](https://registry.terraform.io/providers/hashicorp/tls/latest/docs/resources/private_key) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.asg](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -149,7 +149,6 @@ No modules.
 | <a name="input_key_name"></a> [key\_name](#input\_key\_name) | (Optional) The key name to use for the instance. | `string` | `null` | no |
 | <a name="input_launch_configuration"></a> [launch\_configuration](#input\_launch\_configuration) | (Optional) The name of the launch configuration to use. | `string` | `null` | no |
 | <a name="input_launch_template_description"></a> [launch\_template\_description](#input\_launch\_template\_description) | (Optional) Description of the launch template. | `string` | `null` | no |
-| <a name="input_launch_template_name"></a> [launch\_template\_name](#input\_launch\_template\_name) | (Optional) The name of the launch template. If you leave this blank, Terraform will auto-generate a unique name. | `string` | `null` | no |
 | <a name="input_launch_template_name_prefix"></a> [launch\_template\_name\_prefix](#input\_launch\_template\_name\_prefix) | (Optional) Creates a unique name beginning with the specified prefix. Conflicts with name | `string` | `null` | no |
 | <a name="input_launch_template_version"></a> [launch\_template\_version](#input\_launch\_template\_version) | The version of the launch template | `string` | `"$Latest"` | no |
 | <a name="input_license_specifications"></a> [license\_specifications](#input\_license\_specifications) | (Optional) A list of license specifications to associate with. | `map(string)` | `{}` | no |
@@ -210,7 +209,8 @@ No modules.
 | <a name="output_key_name"></a> [key\_name](#output\_key\_name) | The key pair name. |
 | <a name="output_log_group_arn"></a> [log\_group\_arn](#output\_log\_group\_arn) | The Amazon Resource Name (ARN) specifying the log group. Any `:*` suffix added by the API, denoting all CloudWatch Log Streams under the CloudWatch Log Group, is removed for greater compatibility with other AWS services that do not accept the suffix. |
 | <a name="output_log_group_name"></a> [log\_group\_name](#output\_log\_group\_name) | The name of the log group. |
-| <a name="output_private_key_pem"></a> [private\_key\_pem](#output\_private\_key\_pem) | The private key data in PEM format. |
+| <a name="output_secretsmanager_secret"></a> [secretsmanager\_secret](#output\_secretsmanager\_secret) | ARN of the secret where the private key pem is stored |
+| <a name="output_secretsmanager_secret_version"></a> [secretsmanager\_secret\_version](#output\_secretsmanager\_secret\_version) | A pipe delimited combination of secret ID and version ID. |
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | ID of the security group. |
 | <a name="output_security_group_name"></a> [security\_group\_name](#output\_security\_group\_name) | The name of the security group |
 | <a name="output_template_arn"></a> [template\_arn](#output\_template\_arn) | Amazon Resource Name (ARN) of the launch template. |

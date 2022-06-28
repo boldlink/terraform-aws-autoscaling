@@ -62,13 +62,23 @@ module "complete" {
     triggers = ["tag"]
   }
 
-  ## security group: Additional rules
+  ### vpc for security group
+  vpc_id = module.vpc.id
+
+  ## security group: Additional rules.
+  ## Note ports 80 and 443 need to be open to allow downloading packages
   security_group_ingress = [
     {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
-      cidr_blocks = [local.cidr_block]
+      cidr_blocks = ["0.0.0.0/0"]
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
     },
     {
       from_port   = 22
@@ -78,13 +88,21 @@ module "complete" {
     }
   ]
 
+  security_group_egress = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
+
   # Launch template
   launch_template_description = "Complete launch template example"
-  launch_template_name        = local.name
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t2.micro"
+  instance_type               = "t3.nano"
   create_instance_profile     = true
   install_cloudwatch_agent    = true
   create_key_pair             = true
@@ -128,8 +146,9 @@ module "complete" {
   }
 
   tag = {
-    Name        = "complete-example"
-    Environment = "dev"
+    Name               = local.name
+    Environment        = "dev"
+    "user::CostCenter" = "terraform-registry"
   }
 
   # Autoscaling Schedule

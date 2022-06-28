@@ -1,6 +1,6 @@
 ##### Autoscaling
 locals {
-  launch_template         = coalesce(var.launch_template_name, aws_launch_template.main[0].name, var.external_launch_template_name)
+  launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
   launch_template_version = coalesce(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version)
 }
 ############################
@@ -12,6 +12,14 @@ resource "aws_kms_key" "cloudwatch" {
   enable_key_rotation     = var.enable_key_rotation
   policy                  = element(concat(data.aws_iam_policy_document.kms.*.json, [""]), 0)
   deletion_window_in_days = var.key_deletion_window_in_days
+  tags = merge(
+    {
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
+    },
+    var.other_tags,
+  )
 }
 
 resource "aws_cloudwatch_log_group" "main" {
@@ -21,8 +29,9 @@ resource "aws_cloudwatch_log_group" "main" {
   kms_key_id        = aws_kms_key.cloudwatch[0].arn
   tags = merge(
     {
-      "Name"        = var.name
-      "Environment" = var.tag_env
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
     },
     var.other_tags,
   )
@@ -40,12 +49,19 @@ resource "aws_key_pair" "main" {
   public_key = try(tls_private_key.main[0].public_key_openssh, null)
 }
 
-## For downloading the keypair to local computer
-resource "null_resource" "local_save_ec2_keypair" {
-  count = var.create_key_pair ? 1 : 0
-  provisioner "local-exec" {
-    command = "echo '${tls_private_key.main[0].private_key_pem}' > ${path.module}/${aws_key_pair.main[0].id}.pem"
-  }
+################################################
+## Store private key pem to AWS Secrets Manager
+################################################
+resource "aws_secretsmanager_secret" "main" {
+  count       = var.create_key_pair ? 1 : 0
+  name        = var.name
+  description = "Private key pem for connecting to the ${var.name} instances"
+}
+
+resource "aws_secretsmanager_secret_version" "main" {
+  count         = var.create_key_pair ? 1 : 0
+  secret_id     = aws_secretsmanager_secret.main[0].id
+  secret_string = tls_private_key.main[0].private_key_pem
 }
 
 ############################
@@ -134,11 +150,11 @@ resource "aws_security_group" "main" {
     for_each = var.security_group_ingress
     content {
       description      = "Rule to allow port ${try(ingress.value.from_port, "")} inbound traffic"
-      from_port        = try(ingress.value.from_port, 22)
-      to_port          = try(ingress.value.to_port, 22)
-      protocol         = try(ingress.value.protocol, "tcp")
-      cidr_blocks      = try(ingress.value.cidr_blocks, ["0.0.0.0/0"])
-      ipv6_cidr_blocks = try(ingress.value.ipv6_cidr_blocks, ["::/0"])
+      from_port        = try(ingress.value.from_port, null)
+      to_port          = try(ingress.value.to_port, null)
+      protocol         = try(ingress.value.protocol, null)
+      cidr_blocks      = try(ingress.value.cidr_blocks, [])
+      ipv6_cidr_blocks = try(ingress.value.ipv6_cidr_blocks, [])
     }
   }
 
@@ -146,17 +162,18 @@ resource "aws_security_group" "main" {
     for_each = var.security_group_egress
     content {
       description = "Rule to allow outbound traffic"
-      from_port   = try(ingress.value.from_port, 0)
-      to_port     = try(ingress.value.to_port, 0)
-      protocol    = try(ingress.value.protocol, -1)
-      cidr_blocks = try(ingress.value.cidr_blocks, ["0.0.0.0/0"])
+      from_port   = try(egress.value.from_port, 0)
+      to_port     = try(egress.value.to_port, 0)
+      protocol    = try(egress.value.protocol, -1)
+      cidr_blocks = try(egress.value.cidr_blocks, ["0.0.0.0/0"])
     }
   }
 
   tags = merge(
     {
-      "Name"        = var.name
-      "Environment" = var.tag_env
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
     },
     var.other_tags,
   )
@@ -309,7 +326,7 @@ resource "aws_autoscaling_group" "main" {
 #####################################
 resource "aws_launch_template" "main" {
   count                                = var.create_launch_template && var.external_launch_template_name == null ? 1 : 0
-  name                                 = var.launch_template_name
+  name                                 = local.launch_template
   name_prefix                          = var.launch_template_name_prefix
   description                          = var.launch_template_description
   ebs_optimized                        = var.ebs_optimized
@@ -317,7 +334,7 @@ resource "aws_launch_template" "main" {
   instance_type                        = var.instance_type
   key_name                             = var.create_key_pair ? aws_key_pair.main[0].key_name : var.key_name
   user_data                            = var.install_cloudwatch_agent ? base64encode(data.template_cloudinit_config.config.rendered) : var.user_data
-  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : concat(var.security_group_ids, [aws_security_group.main.id])
+  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat([aws_security_group.main.id], var.security_group_ids))
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
   disable_api_termination              = var.disable_api_termination
@@ -470,7 +487,7 @@ resource "aws_launch_template" "main" {
       network_interface_id         = try(network_interfaces.value.network_interface_id, null)
       network_card_index           = try(network_interfaces.value.network_card_index, null)
       private_ip_address           = try(network_interfaces.value.private_ip_address, null)
-      security_groups              = try(network_interfaces.value.security_groups, null)
+      security_groups              = compact(concat([aws_security_group.main.id], var.security_group_ids))
       subnet_id                    = try(network_interfaces.value.subnet_id, null)
     }
   }
@@ -504,8 +521,9 @@ resource "aws_launch_template" "main" {
       resource_type = tag_specifications.value.resource_type
       tags = merge(
         {
-          "Name"        = var.name
-          "Environment" = var.tag_env
+          "Name"             = var.name
+          "Environment"      = var.tag_env
+          "user::CostCenter" = "terraform-registry"
         },
       )
     }

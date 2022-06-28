@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_111 #Ensure IAM policies does not allow write access without constraints.
 - fix: CKV_AWS_109 #Ensure IAM policies does not allow permissions management / resource exposure without constraints.
 - fix: Multiple VPCs are created for the examples, create only one as a support resource and use by all examples.
+- fix: Failed instance status checks for t2 instances
 - feat: Add notification support through sns for asg events in the examples
 - feat: Add windows support - requires adding new userdata templates.
 - feat: Add options in the complete example.

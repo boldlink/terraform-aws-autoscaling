@@ -258,12 +258,6 @@ variable "create_launch_template" {
   default     = false
 }
 
-variable "launch_template_name" {
-  type        = string
-  description = "(Optional) The name of the launch template. If you leave this blank, Terraform will auto-generate a unique name."
-  default     = null
-}
-
 variable "launch_template_name_prefix" {
   type        = string
   description = "(Optional) Creates a unique name beginning with the specified prefix. Conflicts with name"
