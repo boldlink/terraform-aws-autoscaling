@@ -146,7 +146,6 @@ module "complete" {
   }
 
   tag = {
-    Name               = local.name
     Environment        = "dev"
     "user::CostCenter" = "terraform-registry"
   }

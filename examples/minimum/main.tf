@@ -1,5 +1,5 @@
 locals {
-  name = "minimal-example"
+  name = "minimal-autoscaling-example"
 }
 
 module "minimal" {

@@ -307,6 +307,13 @@ resource "aws_autoscaling_group" "main" {
     delete = lookup(var.timeouts, "delete", "10m")
   }
 
+  tag {
+    key                 = "Name"
+    value               = var.name
+    propagate_at_launch = true
+  }
+
+
   dynamic "tag" {
     for_each = var.tag
     content {
