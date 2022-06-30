@@ -20,8 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add updated features from tf resource page.
 - feat: Make the cwa json file a template of it’s own.
 - Feat: Allow to insert additional scripts at the stack level.
-
 - feat: Add example for external Launch Template
+- feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
+
 
 ## [1.2.0] - 2022-06-22
 ### Changes

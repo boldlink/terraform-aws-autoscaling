@@ -102,7 +102,7 @@ module "complete" {
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.nano"
+  instance_type               = "t3.medium"
   create_instance_profile     = true
   install_cloudwatch_agent    = true
   create_key_pair             = true
