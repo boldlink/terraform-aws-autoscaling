@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_109 #Ensure IAM policies does not allow permissions management / resource exposure without constraints.
 - fix: Multiple VPCs are created for the examples, create only one as a support resource and use by all examples.
 - fix: Failed instance status checks for t2 instances
+- fix: Remove profile from lifecycle changes
 - feat: Add notification support through sns for asg events in the examples
 - feat: Add windows support - requires adding new userdata templates.
 - feat: Add options in the complete example.
@@ -23,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add example for external Launch Template
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
 - feat: Remove/upgrade usage of deprecated hashicorp/template provider
-
 
 ## [1.2.0] - 2022-06-22
 ### Changes

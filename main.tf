@@ -53,9 +53,10 @@ resource "aws_key_pair" "main" {
 ## Store private key pem to AWS Secrets Manager
 ################################################
 resource "aws_secretsmanager_secret" "main" {
-  count       = var.create_key_pair ? 1 : 0
-  name        = var.name
-  description = "Private key pem for connecting to the ${var.name} instances"
+  count                   = var.create_key_pair ? 1 : 0
+  name                    = var.name
+  recovery_window_in_days = var.recovery_window_in_days
+  description             = "Private key pem for connecting to the ${var.name} instances"
 }
 
 resource "aws_secretsmanager_secret_version" "main" {
@@ -325,6 +326,10 @@ resource "aws_autoscaling_group" "main" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      name,
+      id,
+    ]
   }
 }
 
@@ -538,6 +543,11 @@ resource "aws_launch_template" "main" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      tags,
+      id,
+      iam_instance_profile
+    ]
   }
 }
 

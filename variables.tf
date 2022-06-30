@@ -204,6 +204,12 @@ variable "launch_template_version" {
   default     = "$Latest"
 }
 
+variable "recovery_window_in_days" {
+  type        = number
+  description = "(Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days."
+  default     = 0
+}
+
 variable "instance_refresh" {
   type        = any
   description = "(Optional) If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated."
@@ -301,13 +307,13 @@ variable "key_name" {
 }
 
 variable "default_version" {
-  type        = string
+  type        = number
   description = "(Optional) Default Version of the launch template."
   default     = null
 }
 
 variable "update_default_version" {
-  type        = string
+  type        = bool
   description = "(Optional) Whether to update Default Version each update. Conflicts with `default_version`."
   default     = null
 }
