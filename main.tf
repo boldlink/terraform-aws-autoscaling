@@ -57,6 +57,10 @@ resource "aws_secretsmanager_secret" "main" {
   name                    = var.name
   recovery_window_in_days = var.recovery_window_in_days
   description             = "Private key pem for connecting to the ${var.name} instances"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_secretsmanager_secret_version" "main" {

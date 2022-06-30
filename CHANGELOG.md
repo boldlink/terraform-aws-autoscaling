@@ -25,19 +25,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
 - feat: Remove/upgrade usage of deprecated hashicorp/template provider
 
-## [1.2.0] - 2022-06-22
+## [1.2.0] - 2022-06-30
 ### Changes
 - fix: Userdata partial success (some packages not installing) specifically cloudwatch agent
 - feat: Added required permissions for agent to send logs and metrics to cloudwatch
 - feat: Added IAM instance profile feature for LC
 
-[1.2.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.0
-
 ## [1.1.1] - 2022-06-10
 ### Changes
 - Fix: network interfaces being created in existing resources but throwing an error in resource initial creation
-
-[1.1.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.1.1
 
 ## [1.1.0] - 2022-05-25
 ### Added
@@ -55,9 +51,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Re-factored examples (`minimum` and `complete`). Further minimised the `minimal` example.
 - Modified `.pre-commit-config.yaml` file
 
-[1.1.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.1.0
-
 ## [1.0.0] - 2022-04-07
 - Initial commit
 
+
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.0
+[1.1.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.1.1
+[1.1.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.1.0
 [1.0.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.0.0
