@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feat: Allow to insert additional scripts at the stack level.
 - feat: Add example for external Launch Template
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
+- feat: Remove/upgrade usage of deprecated hashicorp/template provider
 
 
 ## [1.2.0] - 2022-06-22
