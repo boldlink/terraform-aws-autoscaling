@@ -1,5 +1,17 @@
-locals {
-  name = "complete-example"
+module "vpc" {
+  source               = "git::https://github.com/boldlink/terraform-aws-vpc.git?ref=2.0.3"
+  cidr_block           = local.cidr_block
+  name                 = local.name
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  account              = data.aws_caller_identity.current.account_id
+  region               = data.aws_region.current.name
+
+  ## public Subnets
+  public_subnets          = local.public_subnets
+  availability_zones      = local.azs
+  map_public_ip_on_launch = true
+  tag_env                 = local.tag_env
 }
 
 module "complete" {
@@ -12,7 +24,7 @@ module "complete" {
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = [data.aws_availability_zones.available.names[0]]
+  availability_zones        = [local.azs[0]]
 
   initial_lifecycle_hooks = [
     {
@@ -22,7 +34,7 @@ module "complete" {
       lifecycle_transition = "autoscaling:EC2_INSTANCE_LAUNCHING"
       notification_metadata = jsonencode(
         {
-          Greetings = "Dev"
+          Launching = "Dev"
         }
       )
     },
@@ -33,7 +45,7 @@ module "complete" {
       lifecycle_transition = "autoscaling:EC2_INSTANCE_TERMINATING"
       notification_metadata = jsonencode(
         {
-          Terminating = "Env"
+          Terminating = "Dev"
         }
       )
     }
@@ -50,33 +62,50 @@ module "complete" {
     triggers = ["tag"]
   }
 
-  ## security group: Additional rules
-  security_group_rules = {
-    ingress_http = {
+  ### vpc for security group
+  vpc_id = module.vpc.id
+
+  ## security group: Additional rules.
+  ## Note ports 80 and 443 need to be open to allow downloading packages
+  security_group_ingress = [
+    {
       from_port   = 80
       to_port     = 80
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-      type        = "ingress"
-    }
-    custom = {
-      from_port   = 8080
-      to_port     = 8080
+    },
+    {
+      from_port   = 443
+      to_port     = 443
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-      type        = "ingress"
+    },
+    {
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = [local.cidr_block]
     }
-  }
+  ]
+
+  security_group_egress = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
 
   # Launch template
   launch_template_description = "Complete launch template example"
-  launch_template_name        = local.name
   update_default_version      = true
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.micro"
-  ebs_optimized               = true
-
+  instance_type               = "t3.medium"
+  create_instance_profile     = true
+  install_cloudwatch_agent    = true
+  create_key_pair             = true
   block_device_mappings = [
     {
       # Root volume
@@ -98,49 +127,27 @@ module "complete" {
       }
     }
   ]
-
   capacity_reservation_specification = {
     capacity_reservation_preference = "open"
   }
 
   network_interfaces = [
     {
-      delete_on_termination = true
-      description           = "eth0"
-      device_index          = 0
-      subnet_id             = data.aws_subnet.default.id
-    },
-    {
-      delete_on_termination = true
-      description           = "eth1"
-      device_index          = 1
-      subnet_id             = data.aws_subnet.default.id
+      delete_on_termination       = true
+      associate_public_ip_address = true
+      description                 = "eth0"
+      device_index                = 0
+      subnet_id                   = flatten(module.vpc.public_subnet_id)[0]
     }
   ]
 
-  cpu_options = {
-    core_count       = 1
-    threads_per_core = 1
-  }
-
-  credit_specification = {
-    cpu_credits = "standard"
-  }
-
-  metadata_options = {
-    http_endpoint               = "enabled"
-    http_tokens                 = "required"
-    http_put_response_hop_limit = 32
-    instance_metadata_tags      = "enabled"
-  }
-
   placement = {
-    availability_zone = data.aws_availability_zones.available.names[0]
+    availability_zone = local.azs[0]
   }
 
   tag = {
-    Name        = "complete-example"
-    Environment = "dev"
+    Environment        = "dev"
+    "user::CostCenter" = "terraform-registry"
   }
 
   # Autoscaling Schedule
@@ -150,7 +157,7 @@ module "complete" {
       max_size         = 0
       desired_capacity = 0
       recurrence       = "0 18 * * 1-5" # Mon-Fri in the evening
-      time_zone        = "Africa/Nairobi"
+      time_zone        = "GMT"
     }
 
     morning = {
@@ -158,7 +165,7 @@ module "complete" {
       max_size         = 1
       desired_capacity = 1
       recurrence       = "0 7 * * 1-5" # Mon-Fri in the morning
-      time_zone        = "Africa/Nairobi"
+      time_zone        = "GMT"
     }
   }
   # Target scaling policy schedule based on average CPU load

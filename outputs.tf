@@ -41,12 +41,6 @@ output "arn" {
   value       = aws_autoscaling_group.main.arn
   description = "The ARN for this Auto Scaling Group"
 }
-
-output "private_key_pem" {
-  value       = join("", tls_private_key.main.*.private_key_pem)
-  description = "The private key data in PEM format."
-}
-
 ##################################
 #### SG
 ##################################
@@ -64,12 +58,12 @@ output "security_group_name" {
 ### IAM Role
 ##################################
 output "iam_role_arn" {
-  value       = aws_iam_role.main.arn
+  value       = aws_iam_role.main.*.arn
   description = "Amazon Resource Name (ARN) specifying the role."
 }
 
 output "iam_role_name" {
-  value       = aws_iam_role.main.name
+  value       = aws_iam_role.main.*.name
   description = "Name of the role."
 }
 
@@ -100,4 +94,14 @@ output "template_latest_version" {
 output "template_tags_all" {
   value       = aws_launch_template.main[0].tags_all
   description = "A map of tags assigned to the resource"
+}
+
+output "secretsmanager_secret_version" {
+  value       = aws_secretsmanager_secret_version.main.*.id
+  description = "A pipe delimited combination of secret ID and version ID."
+}
+
+output "secretsmanager_secret" {
+  value       = aws_secretsmanager_secret.main.*.id
+  description = "ARN of the secret where the private key pem is stored"
 }

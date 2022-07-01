@@ -1,17 +1,37 @@
+##### Autoscaling
 locals {
-  launch_template         = coalesce(var.launch_template_name, aws_launch_template.main[0].name, var.external_launch_template_name)
+  launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
   launch_template_version = coalesce(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version)
 }
 ############################
 ### Cloudwatch resources
 ############################
-resource "aws_cloudwatch_log_group" "main" {
-  count = var.enable_monitoring ? 1 : 0
-  name  = "/aws/asg/${var.name}"
+resource "aws_kms_key" "cloudwatch" {
+  count                   = var.install_cloudwatch_agent ? 1 : 0
+  description             = "${var.name} Log Group KMS key"
+  enable_key_rotation     = var.enable_key_rotation
+  policy                  = element(concat(data.aws_iam_policy_document.kms.*.json, [""]), 0)
+  deletion_window_in_days = var.key_deletion_window_in_days
   tags = merge(
     {
-      "Name"        = var.name
-      "Environment" = var.tag_env
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
+    },
+    var.other_tags,
+  )
+}
+
+resource "aws_cloudwatch_log_group" "main" {
+  count             = var.install_cloudwatch_agent ? 1 : 0
+  name              = "/aws/asg/${var.name}"
+  retention_in_days = var.retention_in_days
+  kms_key_id        = aws_kms_key.cloudwatch[0].arn
+  tags = merge(
+    {
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
     },
     var.other_tags,
   )
@@ -29,32 +49,98 @@ resource "aws_key_pair" "main" {
   public_key = try(tls_private_key.main[0].public_key_openssh, null)
 }
 
+################################################
+## Store private key pem to AWS Secrets Manager
+################################################
+resource "aws_secretsmanager_secret" "main" {
+  count                   = var.create_key_pair ? 1 : 0
+  name                    = var.name
+  recovery_window_in_days = var.recovery_window_in_days
+  description             = "Private key pem for connecting to the ${var.name} instances"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "main" {
+  count         = var.create_key_pair ? 1 : 0
+  secret_id     = aws_secretsmanager_secret.main[0].id
+  secret_string = tls_private_key.main[0].private_key_pem
+}
+
 ############################
 ### IAM Resources
 ############################
 resource "aws_iam_instance_profile" "main" {
-  name = "${var.name}_iam_role"
-  path = var.iam_role_path
-  role = aws_iam_role.main.name
+  count = var.create_instance_profile ? 1 : 0
+  name  = "${var.name}-iam-role"
+  path  = var.iam_role_path
+  role  = aws_iam_role.main[0].name
 }
 
 resource "aws_iam_role" "main" {
-  description        = "${var.name} ASG Group IAM Role"
-  name               = "${var.name}.iam_role"
+  count              = var.create_instance_profile ? 1 : 0
+  description        = "${var.name} EC2 IAM Role"
+  name               = "${var.name}-iam-role"
   path               = var.iam_role_path
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
 resource "aws_iam_policy" "main" {
-  name        = "${var.name}.iam_pol"
-  description = "${var.name} ASG Group IAM policy"
+  count       = var.create_instance_profile ? 1 : 0
+  name        = "${var.name}-iam-policy"
+  description = "${var.name} EC2 IAM role policy"
   path        = var.iam_role_path
   policy      = data.aws_iam_policy_document.asg.json
 }
 
 resource "aws_iam_role_policy_attachment" "main" {
-  role       = aws_iam_role.main.name
-  policy_arn = aws_iam_policy.main.arn
+  count      = var.create_instance_profile ? 1 : 0
+  role       = aws_iam_role.main[0].name
+  policy_arn = aws_iam_policy.main[0].arn
+}
+
+### For adding custom permissions to the role created above
+resource "aws_iam_policy" "additional" {
+  count       = var.additional_role_policy_document != null && var.create_instance_profile ? 1 : 0
+  name        = "${var.name}-additional-policy"
+  description = "${var.name} additional IAM role policy"
+  path        = var.iam_role_path
+  policy      = var.additional_role_policy_document
+}
+
+resource "aws_iam_role_policy_attachment" "additional" {
+  count      = var.additional_role_policy_document != null && var.create_instance_profile ? 1 : 0
+  role       = aws_iam_role.main[0].name
+  policy_arn = aws_iam_policy.additional[0].arn
+}
+
+## Managed Policy to allow cloudwatch agent to write metrics to CloudWatch
+resource "aws_iam_role_policy_attachment" "cloudwatchagentserverpolicy" {
+  count      = var.create_instance_profile && var.install_cloudwatch_agent ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.main[0].name
+}
+
+## Configure CloudWatch agent to set the retention policy for log groups that it sends log events to.
+resource "aws_iam_role_policy" "logs_policy" {
+  count = var.create_instance_profile && var.install_cloudwatch_agent ? 1 : 0
+  name  = "CloudWatchAgentPutLogsRetention"
+  role  = aws_iam_role.main[0].name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:PutRetentionPolicy",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
 }
 
 ############################
@@ -65,32 +151,37 @@ resource "aws_security_group" "main" {
   description = "ASG Group Security Group"
   vpc_id      = var.vpc_id
 
-  egress {
-    description = "All egress traffic"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+  dynamic "ingress" {
+    for_each = var.security_group_ingress
+    content {
+      description      = "Rule to allow port ${try(ingress.value.from_port, "")} inbound traffic"
+      from_port        = try(ingress.value.from_port, null)
+      to_port          = try(ingress.value.to_port, null)
+      protocol         = try(ingress.value.protocol, null)
+      cidr_blocks      = try(ingress.value.cidr_blocks, [])
+      ipv6_cidr_blocks = try(ingress.value.ipv6_cidr_blocks, [])
+    }
   }
+
+  dynamic "egress" {
+    for_each = var.security_group_egress
+    content {
+      description = "Rule to allow outbound traffic"
+      from_port   = try(egress.value.from_port, 0)
+      to_port     = try(egress.value.to_port, 0)
+      protocol    = try(egress.value.protocol, -1)
+      cidr_blocks = try(egress.value.cidr_blocks, ["0.0.0.0/0"])
+    }
+  }
+
   tags = merge(
     {
-      "Name"        = var.name
-      "Environment" = var.tag_env
+      "Name"             = var.name
+      "Environment"      = var.tag_env
+      "user::CostCenter" = "terraform-registry"
     },
     var.other_tags,
   )
-}
-
-resource "aws_security_group_rule" "main" {
-  for_each                 = var.security_group_rules
-  security_group_id        = aws_security_group.main.id
-  description              = "Additional rules to add to the security group"
-  from_port                = lookup(each.value, "from_port", null)
-  to_port                  = lookup(each.value, "to_port", null)
-  protocol                 = lookup(each.value, "protocol", "tcp")
-  type                     = lookup(each.value, "type", null)
-  cidr_blocks              = lookup(each.value, "cidr_blocks", null)
-  source_security_group_id = lookup(each.value, "source_security_group_id", null)
 }
 
 ############################
@@ -221,6 +312,13 @@ resource "aws_autoscaling_group" "main" {
     delete = lookup(var.timeouts, "delete", "10m")
   }
 
+  tag {
+    key                 = "Name"
+    value               = var.name
+    propagate_at_launch = true
+  }
+
+
   dynamic "tag" {
     for_each = var.tag
     content {
@@ -232,6 +330,10 @@ resource "aws_autoscaling_group" "main" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      name,
+      id,
+    ]
   }
 }
 
@@ -240,15 +342,15 @@ resource "aws_autoscaling_group" "main" {
 #####################################
 resource "aws_launch_template" "main" {
   count                                = var.create_launch_template && var.external_launch_template_name == null ? 1 : 0
-  name                                 = var.launch_template_name
+  name                                 = local.launch_template
   name_prefix                          = var.launch_template_name_prefix
   description                          = var.launch_template_description
   ebs_optimized                        = var.ebs_optimized
   image_id                             = var.image_id
   instance_type                        = var.instance_type
-  key_name                             = var.key_name
-  user_data                            = var.enable_monitoring ? base64encode(data.template_cloudinit_config.config.rendered) : var.user_data
-  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : concat(var.security_group_ids, [aws_security_group.main.id])
+  key_name                             = var.create_key_pair ? aws_key_pair.main[0].key_name : var.key_name
+  user_data                            = var.install_cloudwatch_agent ? base64encode(data.template_cloudinit_config.config.rendered) : var.user_data
+  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat([aws_security_group.main.id], var.security_group_ids))
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
   disable_api_termination              = var.disable_api_termination
@@ -377,6 +479,10 @@ resource "aws_launch_template" "main" {
     enabled = var.enable_monitoring
   }
 
+  iam_instance_profile {
+    name = var.create_instance_profile ? aws_iam_instance_profile.main[0].name : var.iam_instance_profile
+  }
+
   dynamic "network_interfaces" {
     for_each = var.network_interfaces
     content {
@@ -397,7 +503,7 @@ resource "aws_launch_template" "main" {
       network_interface_id         = try(network_interfaces.value.network_interface_id, null)
       network_card_index           = try(network_interfaces.value.network_card_index, null)
       private_ip_address           = try(network_interfaces.value.private_ip_address, null)
-      security_groups              = try(network_interfaces.value.security_groups, null)
+      security_groups              = compact(concat([aws_security_group.main.id], var.security_group_ids))
       subnet_id                    = try(network_interfaces.value.subnet_id, null)
     }
   }
@@ -431,8 +537,9 @@ resource "aws_launch_template" "main" {
       resource_type = tag_specifications.value.resource_type
       tags = merge(
         {
-          "Name"        = var.name
-          "Environment" = var.tag_env
+          "Name"             = var.name
+          "Environment"      = var.tag_env
+          "user::CostCenter" = "terraform-registry"
         },
       )
     }
@@ -440,6 +547,11 @@ resource "aws_launch_template" "main" {
 
   lifecycle {
     create_before_destroy = true
+    ignore_changes = [
+      tags,
+      id,
+      iam_instance_profile
+    ]
   }
 }
 
@@ -459,7 +571,7 @@ resource "aws_autoscaling_schedule" "main" {
 
 ########################################
 ## Autoscaling Policies Resources
-## Bellow are the resources to trigger autoscaling events and report to an email address (default)
+## Below are the resources to trigger autoscaling events and report to an email address (default)
 ########################################
 resource "aws_autoscaling_policy" "main" {
   for_each                  = var.autoscaling_policy

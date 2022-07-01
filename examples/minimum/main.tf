@@ -1,5 +1,5 @@
 locals {
-  name = "minimal-example"
+  name = "minimal-autoscaling-example"
 }
 
 module "minimal" {
@@ -12,11 +12,10 @@ module "minimal" {
   availability_zones = data.aws_availability_zones.available.names
 
   # Launch template
-  launch_template_name        = local.name
   launch_template_description = "minimal launch template example"
   create_launch_template      = true
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.micro"
+  instance_type               = "t2.medium"
 
   metadata_options = {
     http_endpoint = "enabled"
