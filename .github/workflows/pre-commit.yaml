@@ -69,6 +69,8 @@ jobs:
       uses: EndBug/add-and-commit@v9
       with:
         message: '[Boldlinksig]: Pre-commit auto updated files on ${{ steps.date.outputs.date }}.'
+        fetch: true
+        pull: '--rebase --autostash ...'
         author_name: boldlinksig
         author_email: boldlinksig@boldlink.io
         committer_name: boldlinksig
