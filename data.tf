@@ -31,17 +31,6 @@ data "aws_iam_policy_document" "asg" {
 
     resources = ["*"]
   }
-  statement {
-    sid    = "EC2"
-    effect = "Allow"
-
-    actions = [
-      "ec2:RunInstances",
-      "iam:PassRole"
-    ]
-
-    resources = ["*"]
-  }
 
   statement {
     sid    = "Logs"
