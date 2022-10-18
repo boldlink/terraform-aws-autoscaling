@@ -8,6 +8,21 @@ data "aws_ami" "amazon_linux" {
   }
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
+data "aws_vpc" "supporting" {
+  filter {
+    name   = "tag:Name"
+    values = [local.supporting_resources_name]
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "tag:Name"
+    values = ["${local.supporting_resources_name}*.pri.*"]
+  }
+}
+
+data "aws_subnet" "private" {
+  for_each = toset(data.aws_subnets.private.ids)
+  id       = each.value
 }

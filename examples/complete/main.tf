@@ -1,19 +1,3 @@
-module "vpc" {
-  source               = "git::https://github.com/boldlink/terraform-aws-vpc.git?ref=2.0.3"
-  cidr_block           = local.cidr_block
-  name                 = local.name
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  account              = data.aws_caller_identity.current.account_id
-  region               = data.aws_region.current.name
-
-  ## public Subnets
-  public_subnets          = local.public_subnets
-  availability_zones      = local.azs
-  map_public_ip_on_launch = true
-  tag_env                 = local.tag_env
-}
-
 module "complete" {
   source = "../../"
 
@@ -24,7 +8,7 @@ module "complete" {
   desired_capacity          = 1
   wait_for_capacity_timeout = 0
   health_check_type         = "EC2"
-  availability_zones        = [local.azs[0]]
+  vpc_zone_identifier       = local.subnet_id
 
   initial_lifecycle_hooks = [
     {
@@ -63,7 +47,7 @@ module "complete" {
   }
 
   ### vpc for security group
-  vpc_id = module.vpc.id
+  vpc_id = local.vpc_id
 
   ## security group: Additional rules.
   ## Note ports 80 and 443 need to be open to allow downloading packages
@@ -84,7 +68,7 @@ module "complete" {
       from_port   = 22
       to_port     = 22
       protocol    = "tcp"
-      cidr_blocks = [local.cidr_block]
+      cidr_blocks = [local.vpc_cidr]
     }
   ]
 
@@ -133,22 +117,29 @@ module "complete" {
 
   network_interfaces = [
     {
-      delete_on_termination       = true
-      associate_public_ip_address = true
-      description                 = "eth0"
-      device_index                = 0
-      subnet_id                   = flatten(module.vpc.public_subnet_id)[0]
+      delete_on_termination = true
+      description           = "eth0"
+      device_index          = 0
+      subnet_id             = local.private_subnets
     }
   ]
 
   placement = {
-    availability_zone = local.azs[0]
+    availability_zone = local.azs
   }
 
-  tag = {
-    Environment        = "dev"
-    "user::CostCenter" = "terraform-registry"
-  }
+  tags = local.tags
+
+  tag_specifications = [
+    {
+      resource_type = "volume"
+      tags          = local.tags
+    },
+    {
+      resource_type = "instance"
+      tags          = local.tags
+    }
+  ]
 
   # Autoscaling Schedule
   schedules = {

@@ -44,6 +44,7 @@ jobs:
                 echo "*******| changing dir to ${folder} |******"
                 cd ${parent_dir}
                 cd "${folder}"
+                sed -i '/Build Status/d' README.md
                 for x in ${files}; do
                         echo running command: $cmd"${x}"
                         eval ${cmd}"${x}" > /dev/null 2>&1 || echo $? > /dev/null 2>&1
