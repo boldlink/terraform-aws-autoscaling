@@ -54,11 +54,6 @@ jobs:
 
     - name: Enable python
       uses: actions/setup-python@v3
-
-    - name: Automatic Rebase
-      uses: cirrus-actions/rebase@1.7
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Install latest pre-commit
       run: pip install --upgrade pre-commit
