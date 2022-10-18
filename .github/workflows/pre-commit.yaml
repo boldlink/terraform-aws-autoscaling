@@ -70,7 +70,7 @@ jobs:
       with:
         message: '[Boldlinksig]: Pre-commit auto updated files on ${{ steps.date.outputs.date }}.'
         fetch: true
-        pull: '--rebase --autostash ...'
+        pull: '--rebase'
         author_name: boldlinksig
         author_email: boldlinksig@boldlink.io
         committer_name: boldlinksig
