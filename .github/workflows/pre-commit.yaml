@@ -56,7 +56,9 @@ jobs:
       uses: actions/setup-python@v3
 
     - name: Fetch Changes from Remote if any
-      run: git fetch && git pull
+      run: |
+        git fetch
+        git pull || git rebase
       
     - name: Install latest pre-commit
       run: pip install --upgrade pre-commit
