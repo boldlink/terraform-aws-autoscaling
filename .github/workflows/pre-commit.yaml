@@ -54,7 +54,7 @@ jobs:
 
     - name: Enable python
       uses: actions/setup-python@v3
-      
+
     - name: Install latest pre-commit
       run: pip install --upgrade pre-commit
 
