@@ -10,16 +10,9 @@ resource "aws_kms_key" "cloudwatch" {
   count                   = var.install_cloudwatch_agent ? 1 : 0
   description             = "${var.name} Log Group KMS key"
   enable_key_rotation     = var.enable_key_rotation
-  policy                  = element(concat(data.aws_iam_policy_document.kms.*.json, [""]), 0)
+  policy                  = local.kms_policy
   deletion_window_in_days = var.key_deletion_window_in_days
-  tags = merge(
-    {
-      "Name"             = var.name
-      "Environment"      = var.tag_env
-      "user::CostCenter" = "terraform-registry"
-    },
-    var.other_tags,
-  )
+  tags                    = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "main" {
@@ -27,14 +20,7 @@ resource "aws_cloudwatch_log_group" "main" {
   name              = "/aws/asg/${var.name}"
   retention_in_days = var.retention_in_days
   kms_key_id        = aws_kms_key.cloudwatch[0].arn
-  tags = merge(
-    {
-      "Name"             = var.name
-      "Environment"      = var.tag_env
-      "user::CostCenter" = "terraform-registry"
-    },
-    var.other_tags,
-  )
+  tags              = var.tags
 }
 
 resource "tls_private_key" "main" {
@@ -57,6 +43,9 @@ resource "aws_secretsmanager_secret" "main" {
   name                    = var.name
   recovery_window_in_days = var.recovery_window_in_days
   description             = "Private key pem for connecting to the ${var.name} instances"
+  kms_key_id              = try(aws_kms_key.cloudwatch[0].arn, null)
+
+  tags = var.tags
 
   lifecycle {
     create_before_destroy = true
@@ -174,14 +163,7 @@ resource "aws_security_group" "main" {
     }
   }
 
-  tags = merge(
-    {
-      "Name"             = var.name
-      "Environment"      = var.tag_env
-      "user::CostCenter" = "terraform-registry"
-    },
-    var.other_tags,
-  )
+  tags = var.tags
 }
 
 ############################
@@ -317,7 +299,6 @@ resource "aws_autoscaling_group" "main" {
     value               = var.name
     propagate_at_launch = true
   }
-
 
   dynamic "tag" {
     for_each = var.tag
@@ -464,15 +445,12 @@ resource "aws_launch_template" "main" {
     }
   }
 
-  dynamic "metadata_options" {
-    for_each = length(var.metadata_options) > 0 ? [var.metadata_options] : []
-    content {
-      http_endpoint               = lookup(metadata_options.value, "http_endpoint", null)
-      http_tokens                 = lookup(metadata_options.value, "http_tokens", null)
-      http_put_response_hop_limit = lookup(metadata_options.value, "http_put_response_hop_limit", null)
-      http_protocol_ipv6          = lookup(metadata_options.value, "http_protocol_ipv6", null)
-      instance_metadata_tags      = lookup(metadata_options.value, "instance_metadata_tags", null)
-    }
+  metadata_options {
+    http_endpoint               = lookup(var.metadata_options, "http_endpoint", "enabled")
+    http_put_response_hop_limit = lookup(var.metadata_options, "http_put_response_hop_limit", 10)
+    http_tokens                 = lookup(var.metadata_options, "http_tokens", "required")
+    http_protocol_ipv6          = lookup(var.metadata_options, "http_protocol_ipv6", null)
+    instance_metadata_tags      = lookup(var.metadata_options, "instance_metadata_tags", null)
   }
 
   monitoring {
@@ -535,13 +513,7 @@ resource "aws_launch_template" "main" {
     for_each = var.tag_specifications
     content {
       resource_type = tag_specifications.value.resource_type
-      tags = merge(
-        {
-          "Name"             = var.name
-          "Environment"      = var.tag_env
-          "user::CostCenter" = "terraform-registry"
-        },
-      )
+      tags          = var.tags
     }
   }
 

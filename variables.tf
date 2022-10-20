@@ -556,18 +556,11 @@ variable "sns_kms_master_key_id" {
   default     = "alias/aws/sns"
 }
 
-
 ###############
 #### Tags
 ###############
-variable "tag_env" {
-  type        = string
-  description = "The environment this resource is being deployed to"
-  default     = null
-}
-
-variable "other_tags" {
-  description = "For adding an additional values for tags"
+variable "tags" {
+  description = "Provide the tags for the resources"
   type        = map(string)
   default     = {}
 }
