@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
 - feat: Remove/upgrade usage of deprecated hashicorp/template provider
 
+## [1.2.2] - 2023-08-14
+- fix: VPC version used in supporting resources. This is to fix pre-commit errors for deprecated outputs
+
 ## [1.2.1] - 2022-10-18
 ### Changes
 - fix: CKV_AWS_79: Ensure Instance Metadata Service Version 1 is not enabled.

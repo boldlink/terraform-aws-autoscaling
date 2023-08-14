@@ -8,8 +8,14 @@ locals {
   supporting_resources_name = "terraform-aws-autoscaling"
   vpc_id                    = data.aws_vpc.supporting.id
   tags = {
-    Environment        = "examples"
     Name               = local.name
+    Environment        = "examples"
     "user::CostCenter" = "terraform-registry"
+    Department         = "DevOps"
+    InstanceScheduler  = true
+    Project            = "Examples"
+    Owner              = "Boldlink"
+    LayerName          = "cExample"
+    LayerId            = "cExample"
   }
 }
