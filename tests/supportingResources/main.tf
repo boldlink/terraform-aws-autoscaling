@@ -8,7 +8,7 @@ module "autoscaling_vpc" {
   enable_dns_hostnames   = var.enable_dns_hostnames
   enable_public_subnets  = var.enable_public_subnets
   enable_private_subnets = var.enable_private_subnets
-  tags                   = local.tags
+  tags                   = var.tags
 
   public_subnets = {
     public = {
