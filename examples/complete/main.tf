@@ -1,7 +1,8 @@
 module "complete" {
-  source = "../../"
-
-  ## Autoscaling group
+  #checkov:skip=CKV_AWS_260
+  #checkov:skip=CKV_AWS_290
+  #checkov:skip=CKV_AWS_355
+  source                    = "../../"
   name                      = local.name
   min_size                  = 1
   max_size                  = 2

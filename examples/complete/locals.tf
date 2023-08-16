@@ -15,8 +15,14 @@ locals {
   vpc_id                    = data.aws_vpc.supporting.id
   vpc_cidr                  = data.aws_vpc.supporting.cidr_block
   tags = {
-    Environment        = "examples"
     Name               = local.name
+    Environment        = "examples"
     "user::CostCenter" = "terraform-registry"
+    Department         = "DevOps"
+    InstanceScheduler  = true
+    Project            = "Examples"
+    Owner              = "Boldlink"
+    LayerName          = "cExample"
+    LayerId            = "cExample"
   }
 }

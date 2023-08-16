@@ -29,27 +29,30 @@ This stack builds:
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.63.0 |
+No providers.
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_autoscaling_vpc"></a> [autoscaling\_vpc](#module\_autoscaling\_vpc) | boldlink/vpc/aws | 2.0.3 |
+| <a name="module_autoscaling_vpc"></a> [autoscaling\_vpc](#module\_autoscaling\_vpc) | boldlink/vpc/aws | 3.0.4 |
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
+No resources.
 
 ## Inputs
 
-No inputs.
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_cidr_block"></a> [cidr\_block](#input\_cidr\_block) | VPC CIDR | `string` | `"10.1.0.0/16"` | no |
+| <a name="input_enable_dns_hostnames"></a> [enable\_dns\_hostnames](#input\_enable\_dns\_hostnames) | Whether to enable dns hostnames | `bool` | `true` | no |
+| <a name="input_enable_dns_support"></a> [enable\_dns\_support](#input\_enable\_dns\_support) | Whether to enable dns support for the vpc | `bool` | `true` | no |
+| <a name="input_enable_private_subnets"></a> [enable\_private\_subnets](#input\_enable\_private\_subnets) | Whether to enable private subnets | `bool` | `true` | no |
+| <a name="input_enable_public_subnets"></a> [enable\_public\_subnets](#input\_enable\_public\_subnets) | Whether to enable public subnets | `bool` | `true` | no |
+| <a name="input_name"></a> [name](#input\_name) | Name of the stack | `string` | `"terraform-aws-autoscaling"` | no |
+| <a name="input_nat"></a> [nat](#input\_nat) | Choose `single` or `multi` for NATs | `string` | `"single"` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the created resources | `map(string)` | <pre>{<br>  "Department": "DevOps",<br>  "Environment": "examples",<br>  "InstanceScheduler": true,<br>  "LayerId": "cExample",<br>  "LayerName": "cExample",<br>  "Owner": "Boldlink",<br>  "Project": "Examples",<br>  "user::CostCenter": "terraform-registry"<br>}</pre> | no |
 
 ## Outputs
 

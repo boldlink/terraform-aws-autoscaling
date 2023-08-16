@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add example for external Launch Template
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
 - feat: Remove/upgrade usage of deprecated hashicorp/template provider
+- fix: CKV_AWS_356 "Ensure no IAM policies documents allow “*” as a statement’s resource for restrictable actions"
+- fix: CKV2_AWS_57 "Ensure Secrets Manager secrets should have automatic rotation enabled"
+- fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
+- fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
+
+
+## [1.2.2] - 2023-08-14
+- fix: VPC version used in supporting resources. This is to fix pre-commit errors for deprecated outputs
 
 ## [1.2.1] - 2022-10-18
 ### Changes
@@ -60,7 +68,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/1.2.1...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/1.2.2...HEAD
+
+[1.2.2]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.2
 [1.2.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.1
 [1.2.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.0
 [1.1.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.1.1
