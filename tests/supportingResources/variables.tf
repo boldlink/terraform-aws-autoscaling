@@ -1,33 +1,18 @@
-variable "name" {
-  type        = string
-  description = "Name of the stack"
-  default     = "terraform-aws-autoscaling"
-}
-
 variable "cidr_block" {
   type        = string
-  description = "VPC CIDR"
+  description = "(Optional) The IPv4 CIDR block for the VPC. CIDR can be explicitly set or it can be derived from IPAM using `ipv4_netmask_length`."
   default     = "10.1.0.0/16"
 }
 
-variable "tags" {
-  type        = map(string)
-  description = "Tags to apply to the created resources"
-  default = {
-    Environment        = "examples"
-    "user::CostCenter" = "terraform-registry"
-    Department         = "DevOps"
-    InstanceScheduler  = true
-    Project            = "Examples"
-    Owner              = "Boldlink"
-    LayerName          = "cExample"
-    LayerId            = "cExample"
-  }
+variable "name" {
+  type        = string
+  description = "Input the name of stack"
+  default     = "terraform-aws-autoscaling"
 }
 
 variable "enable_dns_hostnames" {
   type        = bool
-  description = "Whether to enable dns hostnames"
+  description = "(Optional) A boolean flag to enable/disable DNS hostnames in the VPC. Defaults `false`."
   default     = true
 }
 
@@ -49,8 +34,28 @@ variable "enable_private_subnets" {
   default     = true
 }
 
+variable "map_public_ip_on_launch" {
+  type        = bool
+  description = "(Optional) Specify true to indicate that instances launched into the subnet should be assigned a public IP address. Default is `false`."
+  default     = true
+}
+
 variable "nat" {
   type        = string
   description = "Choose `single` or `multi` for NATs"
   default     = "single"
+}
+
+variable "tags" {
+  description = "Map of tags to assign to the resource."
+  type        = map(string)
+  default = {
+    Environment        = "example"
+    "user::CostCenter" = "terraform-registry"
+    Department         = "DevOps"
+    Project            = "Examples"
+    Owner              = "Boldlink"
+    LayerName          = "Example"
+    LayerId            = "Example"
+  }
 }

@@ -26,6 +26,12 @@ variable "user_data" {
   default     = null
 }
 
+variable "install_ssm_agent" {
+  type        = bool
+  description = "Whether to install ssm agent"
+  default     = true
+}
+
 ## For external launch template, i.e launch template not created by this module
 variable "external_launch_template_name" {
   type        = string
@@ -204,12 +210,6 @@ variable "launch_template_version" {
   default     = "$Latest"
 }
 
-variable "recovery_window_in_days" {
-  type        = number
-  description = "(Optional) Number of days that AWS Secrets Manager waits before it can delete the secret. This value can be 0 to force deletion without recovery or range from 7 to 30 days."
-  default     = 0
-}
-
 variable "instance_refresh" {
   type        = any
   description = "(Optional) If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated."
@@ -244,12 +244,6 @@ variable "vpc_id" {
   type        = string
   description = "The ID of the VPC to launch resources in"
   default     = null
-}
-
-variable "create_key_pair" {
-  type        = bool
-  description = "Specify whether to create key pair resources"
-  default     = false
 }
 
 variable "enable_monitoring" {
@@ -297,12 +291,6 @@ variable "image_id" {
 variable "instance_type" {
   type        = string
   description = "(Optional) The type of the instance."
-  default     = null
-}
-
-variable "key_name" {
-  type        = string
-  description = "(Optional) The key name to use for the instance."
   default     = null
 }
 
@@ -417,7 +405,7 @@ variable "network_interfaces" {
 variable "create_instance_profile" {
   type        = bool
   description = "Specify whether to create instance profile using the module."
-  default     = false
+  default     = true
 }
 
 variable "iam_instance_profile" {
@@ -502,32 +490,6 @@ variable "extra_script" {
   type        = string
   description = "The name of the extra script"
   default     = ""
-}
-
-############################
-### SSH Key
-############################
-variable "ssh_key_algorithm" {
-  type        = string
-  description = "(Required) The name of the algorithm to use for the key. Currently-supported values are `RSA` and `ECDSA`."
-  default     = "RSA"
-}
-
-variable "rsa_bits" {
-  type        = number
-  description = "(Optional) When algorithm is `RSA`, the size of the generated RSA key in bits. Defaults to `2048`."
-  default     = "4096"
-  sensitive   = true
-}
-
-###################################################################################
-##Use only during troubleshooting,
-##this will enable bash -x output of every command
-###################################################################################
-variable "debug_script" {
-  type        = string
-  description = "Enable set -x option for userdatam use 'off' or 'on' as values"
-  default     = "off"
 }
 
 ##############
