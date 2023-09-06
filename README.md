@@ -21,7 +21,7 @@ This module creates the resources needed to deploy and monitor autoscaled EC2 in
 - Has elaborate examples that you can use to setup your ec2 instance within a very short time.
 - This module includes a feature to install ssm agent and gives the necessary permissions for the instances to communicate with SSM manager.
 - As of [2.0.0] we no longer support or enable SSH keys on the instances, this is aligned with AWS best practices. As an alternative you should use Session Mananger which providers support to login to the Ec2 Linux and Windows (read below for instructions)
-- This module has full support for Linux instances and partial support for Windows Instances (see changelog for Windows features unreleased).
+- This module has full support for Linux instances. Windows support will be added in a future release
 
 Examples available [here](./examples)
 
