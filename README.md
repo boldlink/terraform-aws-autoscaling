@@ -26,7 +26,7 @@ This module creates the resources needed to deploy and monitor autoscaled EC2 in
 Examples available [here](./examples)
 
 ## Connecting to Instances
-- Use SSM Manager CLI to connect to instance Linux and Windows ec2 instances.
+- Use SSM Manager CLI to connect to the instances.
 - **NOTE:** It's crucial to configure the security group outbound rules to allow all traffic to any destination (`0.0.0.0/0`). This is necessary because the instance requires the capability to send requests for downloading packages.
 
 ### Using AWS CLI to start Systems Manager Session
@@ -48,7 +48,7 @@ To manage instances in isolated subnets without internet connectivity, it is nec
 You can use Boldlink VPC Endpoints Terraform module [here](https://github.com/boldlink/terraform-aws-vpc-endpoints/tree/main/examples)
 
 ## Usage
-*NOTE*: These examples use the latest version of this module
+**NOTE**: These examples use the latest version of this module
 
 ```hcl
 module "minimal" {
