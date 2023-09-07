@@ -76,6 +76,12 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
+variable "install_ssm_agent" {
+  type        = bool
+  description = "Whether to install ssm agent"
+  default     = true
+}
+
 variable "tags" {
   type        = map(string)
   description = "Name of the supporting resources stack"

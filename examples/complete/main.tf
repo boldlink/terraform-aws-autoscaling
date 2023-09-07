@@ -88,6 +88,7 @@ module "complete" {
   create_launch_template      = var.create_launch_template
   image_id                    = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
+  install_ssm_agent           = var.install_ssm_agent
   install_cloudwatch_agent    = var.install_cloudwatch_agent
   block_device_mappings = [
     {

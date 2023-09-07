@@ -29,7 +29,7 @@ variable "user_data" {
 variable "install_ssm_agent" {
   type        = bool
   description = "Whether to install ssm agent"
-  default     = true
+  default     = false
 }
 
 ## For external launch template, i.e launch template not created by this module
