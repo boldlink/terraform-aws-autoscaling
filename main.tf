@@ -23,41 +23,6 @@ resource "aws_cloudwatch_log_group" "main" {
   tags              = var.tags
 }
 
-resource "tls_private_key" "main" {
-  count     = var.create_key_pair ? 1 : 0
-  algorithm = var.ssh_key_algorithm
-  rsa_bits  = var.rsa_bits
-}
-
-resource "aws_key_pair" "main" {
-  count      = var.create_key_pair ? 1 : 0
-  key_name   = var.name
-  public_key = try(tls_private_key.main[0].public_key_openssh, null)
-}
-
-################################################
-## Store private key pem to AWS Secrets Manager
-################################################
-resource "aws_secretsmanager_secret" "main" {
-  count                   = var.create_key_pair ? 1 : 0
-  name                    = var.name
-  recovery_window_in_days = var.recovery_window_in_days
-  description             = "Private key pem for connecting to the ${var.name} instances"
-  kms_key_id              = try(aws_kms_key.cloudwatch[0].arn, null)
-
-  tags = var.tags
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "main" {
-  count         = var.create_key_pair ? 1 : 0
-  secret_id     = aws_secretsmanager_secret.main[0].id
-  secret_string = tls_private_key.main[0].private_key_pem
-}
-
 ############################
 ### IAM Resources
 ############################
@@ -109,6 +74,13 @@ resource "aws_iam_role_policy_attachment" "additional" {
 resource "aws_iam_role_policy_attachment" "cloudwatchagentserverpolicy" {
   count      = var.create_instance_profile && var.install_cloudwatch_agent ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.main[0].name
+}
+
+## Managed Policy to allow ssm agent to communicate with SSM Manager
+resource "aws_iam_role_policy_attachment" "ssm" {
+  count      = var.create_instance_profile && var.install_ssm_agent ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   role       = aws_iam_role.main[0].name
 }
 
@@ -329,8 +301,7 @@ resource "aws_launch_template" "main" {
   ebs_optimized                        = var.ebs_optimized
   image_id                             = var.image_id
   instance_type                        = var.instance_type
-  key_name                             = var.create_key_pair ? aws_key_pair.main[0].key_name : var.key_name
-  user_data                            = var.install_cloudwatch_agent ? base64encode(data.template_cloudinit_config.config.rendered) : var.user_data
+  user_data                            = var.install_ssm_agent || var.install_cloudwatch_agent ? data.template_cloudinit_config.config.rendered : var.user_data
   vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat([aws_security_group.main.id], var.security_group_ids))
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
@@ -519,11 +490,6 @@ resource "aws_launch_template" "main" {
 
   lifecycle {
     create_before_destroy = true
-    ignore_changes = [
-      tags,
-      id,
-      iam_instance_profile
-    ]
   }
 }
 

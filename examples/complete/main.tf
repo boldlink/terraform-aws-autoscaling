@@ -3,12 +3,12 @@ module "complete" {
   #checkov:skip=CKV_AWS_290
   #checkov:skip=CKV_AWS_355
   source                    = "../../"
-  name                      = local.name
-  min_size                  = 1
-  max_size                  = 2
-  desired_capacity          = 1
-  wait_for_capacity_timeout = 0
-  health_check_type         = "EC2"
+  name                      = var.name
+  min_size                  = var.min_size
+  max_size                  = var.max_size
+  desired_capacity          = var.desired_capacity
+  wait_for_capacity_timeout = var.wait_for_capacity_timeout
+  health_check_type         = var.health_check_type
   vpc_zone_identifier       = local.subnet_id
 
   initial_lifecycle_hooks = [
@@ -83,14 +83,13 @@ module "complete" {
   ]
 
   # Launch template
-  launch_template_description = "Complete launch template example"
-  update_default_version      = true
-  create_launch_template      = true
+  launch_template_description = var.description
+  update_default_version      = var.update_default_version
+  create_launch_template      = var.create_launch_template
   image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = "t3.medium"
-  create_instance_profile     = true
-  install_cloudwatch_agent    = true
-  create_key_pair             = true
+  instance_type               = var.instance_type
+  install_ssm_agent           = var.install_ssm_agent
+  install_cloudwatch_agent    = var.install_cloudwatch_agent
   block_device_mappings = [
     {
       # Root volume

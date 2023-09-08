@@ -12,19 +12,6 @@ output "log_group_arn" {
 }
 
 ##################################
-### Key Pair
-##################################
-output "key_name" {
-  value       = join("", aws_key_pair.main.*.key_name)
-  description = "The key pair name."
-}
-
-output "fingerprint" {
-  value       = join("", aws_key_pair.main.*.fingerprint)
-  description = " The MD5 public key fingerprint as specified in section 4 of RFC 4716."
-}
-
-##################################
 ### Auto Scaling group
 ##################################
 output "id" {
@@ -94,14 +81,4 @@ output "template_latest_version" {
 output "template_tags_all" {
   value       = aws_launch_template.main[0].tags_all
   description = "A map of tags assigned to the resource"
-}
-
-output "secretsmanager_secret_version" {
-  value       = aws_secretsmanager_secret_version.main.*.id
-  description = "A pipe delimited combination of secret ID and version ID."
-}
-
-output "secretsmanager_secret" {
-  value       = aws_secretsmanager_secret.main.*.id
-  description = "ARN of the secret where the private key pem is stored"
 }

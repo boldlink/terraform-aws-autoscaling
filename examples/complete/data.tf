@@ -4,21 +4,21 @@ data "aws_ami" "amazon_linux" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-*-x86_64-gp2"]
+    values = ["amzn2-ami-*-${var.architecture}-gp2"]
   }
 }
 
 data "aws_vpc" "supporting" {
   filter {
     name   = "tag:Name"
-    values = [local.supporting_resources_name]
+    values = [var.supporting_resources_name]
   }
 }
 
 data "aws_subnets" "private" {
   filter {
     name   = "tag:Name"
-    values = ["${local.supporting_resources_name}*.pri.*"]
+    values = ["${var.supporting_resources_name}*.pri.*"]
   }
 }
 

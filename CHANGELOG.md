@@ -6,8 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- feat: Include installation of awslogs on ubuntu instances in the script
+- feat: add cloud-init script for creating windows OS SSM user when enabled.
+- feat: Allow the input of a custom awslogs.json configuration file on cwldata.sh installation`
 - fix: Failed instance status checks for t2 instances
-- fix: Remove profile from lifecycle changes
 - feat: Add notification support through sns for asg events in the examples
 - feat: Add windows support - requires adding new userdata templates.
 - feat: Add options in the complete example.
@@ -25,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
 
+##  [2.0.0] - 2023-09-05
+### Changes
+- feat: Added ssm support and removed key pair creation for different linux distros
+- feat: Add Operating System flexibility in script (i.e download/install packages depending on OS flavor) for linux instances.
+- feat: Restructured the script to update first and install necessary packages
+- fix: Remove profile from lifecycle changes
 
 ## [1.2.2] - 2023-08-14
 - fix: VPC version used in supporting resources. This is to fix pre-commit errors for deprecated outputs
@@ -68,8 +76,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/1.2.2...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.0...HEAD
 
+[2.0.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.0
 [1.2.2]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.2
 [1.2.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.1
 [1.2.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.0
