@@ -101,7 +101,7 @@ module "minimal" {
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.24.0 |
 | <a name="provider_template"></a> [template](#provider\_template) | 2.2.0 |
 
 ## Modules
@@ -146,18 +146,18 @@ No modules.
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | (Optional) A list of one or more availability zones for the group. Used for EC2-Classic, attaching a network interface via id from a launch template and default subnets when not specified with `vpc_zone_identifier` argument. Conflicts with `vpc_zone_identifier`. | `list(string)` | `null` | no |
 | <a name="input_block_device_mappings"></a> [block\_device\_mappings](#input\_block\_device\_mappings) | The storage device mapping block | `list(any)` | `[]` | no |
 | <a name="input_capacity_rebalance"></a> [capacity\_rebalance](#input\_capacity\_rebalance) | (Optional) Indicates whether capacity rebalance is enabled. Otherwise, capacity rebalance is disabled. | `bool` | `false` | no |
-| <a name="input_capacity_reservation_specification"></a> [capacity\_reservation\_specification](#input\_capacity\_reservation\_specification) | (Optional) Targeting for EC2 capacity reservations. | `map(string)` | `{}` | no |
-| <a name="input_cpu_options"></a> [cpu\_options](#input\_cpu\_options) | (Optional) The CPU options for the instance. | `map(string)` | `{}` | no |
+| <a name="input_capacity_reservation_specification"></a> [capacity\_reservation\_specification](#input\_capacity\_reservation\_specification) | (Optional) Targeting for EC2 capacity reservations. | `any` | `{}` | no |
+| <a name="input_cpu_options"></a> [cpu\_options](#input\_cpu\_options) | (Optional) The CPU options for the instance. | `any` | `{}` | no |
 | <a name="input_create_instance_profile"></a> [create\_instance\_profile](#input\_create\_instance\_profile) | Specify whether to create instance profile using the module. | `bool` | `true` | no |
 | <a name="input_create_launch_template"></a> [create\_launch\_template](#input\_create\_launch\_template) | Specify whether to create launch template | `bool` | `false` | no |
-| <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | (Optional) Customize the credit specification of the instance. | `map(string)` | `{}` | no |
+| <a name="input_credit_specification"></a> [credit\_specification](#input\_credit\_specification) | (Optional) Customize the credit specification of the instance. | `any` | `{}` | no |
 | <a name="input_default_cooldown"></a> [default\_cooldown](#input\_default\_cooldown) | (Optional) The amount of time, in seconds, after a scaling activity completes before another scaling activity can start. | `number` | `null` | no |
 | <a name="input_default_version"></a> [default\_version](#input\_default\_version) | (Optional) Default Version of the launch template. | `number` | `null` | no |
 | <a name="input_desired_capacity"></a> [desired\_capacity](#input\_desired\_capacity) | (Optional) The number of Amazon EC2 instances that should be running in the group. | `number` | `null` | no |
 | <a name="input_disable_api_termination"></a> [disable\_api\_termination](#input\_disable\_api\_termination) | (Optional) If true, enables EC2 Instance Termination Protection | `bool` | `false` | no |
 | <a name="input_ebs_optimized"></a> [ebs\_optimized](#input\_ebs\_optimized) | (Optional) If true, the launched EC2 instance will be EBS-optimized. | `bool` | `false` | no |
-| <a name="input_elastic_gpu_specifications"></a> [elastic\_gpu\_specifications](#input\_elastic\_gpu\_specifications) | (Optional) The elastic GPU to attach to the instance. | `map(string)` | `{}` | no |
-| <a name="input_elastic_inference_accelerator"></a> [elastic\_inference\_accelerator](#input\_elastic\_inference\_accelerator) | (Optional) Configuration block containing an Elastic Inference Accelerator to attach to the instance. | `map(string)` | `{}` | no |
+| <a name="input_elastic_gpu_specifications"></a> [elastic\_gpu\_specifications](#input\_elastic\_gpu\_specifications) | (Optional) The elastic GPU to attach to the instance. | `any` | `{}` | no |
+| <a name="input_elastic_inference_accelerator"></a> [elastic\_inference\_accelerator](#input\_elastic\_inference\_accelerator) | (Optional) Configuration block containing an Elastic Inference Accelerator to attach to the instance. | `any` | `{}` | no |
 | <a name="input_enable_key_rotation"></a> [enable\_key\_rotation](#input\_enable\_key\_rotation) | Choose whether to enable key rotation | `bool` | `true` | no |
 | <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Choose whether to enable monotoring | `bool` | `false` | no |
 | <a name="input_enabled_metrics"></a> [enabled\_metrics](#input\_enabled\_metrics) | A list of metrics to collect. | `list(string)` | <pre>[<br>  "GroupMinSize",<br>  "GroupMaxSize",<br>  "GroupDesiredCapacity",<br>  "GroupInServiceInstances",<br>  "GroupPendingInstances",<br>  "GroupStandbyInstances",<br>  "GroupTerminatingInstances",<br>  "GroupTotalInstances"<br>]</pre> | no |
@@ -176,16 +176,17 @@ No modules.
 | <a name="input_install_cloudwatch_agent"></a> [install\_cloudwatch\_agent](#input\_install\_cloudwatch\_agent) | Specify whether to have cloudwatch agent installed in created instances | `bool` | `false` | no |
 | <a name="input_install_ssm_agent"></a> [install\_ssm\_agent](#input\_install\_ssm\_agent) | Whether to install ssm agent | `bool` | `false` | no |
 | <a name="input_instance_initiated_shutdown_behavior"></a> [instance\_initiated\_shutdown\_behavior](#input\_instance\_initiated\_shutdown\_behavior) | (Optional) Shutdown behavior for the instance. Can be `stop` or `terminate`. (Default: `stop`). | `string` | `"stop"` | no |
-| <a name="input_instance_market_options"></a> [instance\_market\_options](#input\_instance\_market\_options) | (Optional) The market (purchasing) option for the instance. | `map(string)` | `{}` | no |
+| <a name="input_instance_market_options"></a> [instance\_market\_options](#input\_instance\_market\_options) | (Optional) The market (purchasing) option for the instance. | `any` | `{}` | no |
 | <a name="input_instance_refresh"></a> [instance\_refresh](#input\_instance\_refresh) | (Optional) If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated. | `any` | `{}` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | (Optional) The type of the instance. | `string` | `null` | no |
 | <a name="input_kernel_id"></a> [kernel\_id](#input\_kernel\_id) | (Optional) The kernel ID. | `string` | `null` | no |
 | <a name="input_key_deletion_window_in_days"></a> [key\_deletion\_window\_in\_days](#input\_key\_deletion\_window\_in\_days) | The number of days before the key is deleted | `number` | `7` | no |
 | <a name="input_launch_configuration"></a> [launch\_configuration](#input\_launch\_configuration) | (Optional) The name of the launch configuration to use. | `string` | `null` | no |
 | <a name="input_launch_template_description"></a> [launch\_template\_description](#input\_launch\_template\_description) | (Optional) Description of the launch template. | `string` | `null` | no |
+| <a name="input_launch_template_id"></a> [launch\_template\_id](#input\_launch\_template\_id) | The ID of external launch template to use | `string` | `null` | no |
 | <a name="input_launch_template_name_prefix"></a> [launch\_template\_name\_prefix](#input\_launch\_template\_name\_prefix) | (Optional) Creates a unique name beginning with the specified prefix. Conflicts with name | `string` | `null` | no |
 | <a name="input_launch_template_version"></a> [launch\_template\_version](#input\_launch\_template\_version) | The version of the launch template | `string` | `"$Latest"` | no |
-| <a name="input_license_specifications"></a> [license\_specifications](#input\_license\_specifications) | (Optional) A list of license specifications to associate with. | `map(string)` | `{}` | no |
+| <a name="input_license_specifications"></a> [license\_specifications](#input\_license\_specifications) | (Optional) A list of license specifications to associate with. | `any` | `{}` | no |
 | <a name="input_load_balancers"></a> [load\_balancers](#input\_load\_balancers) | (Optional) A list of elastic load balancer names to add to the autoscaling group names. Only valid for classic load balancers. For ALBs, use `target_group_arns` instead. | `list(string)` | `[]` | no |
 | <a name="input_max_instance_lifetime"></a> [max\_instance\_lifetime](#input\_max\_instance\_lifetime) | (Optional) The maximum amount of time, in seconds, that an instance can be in service, values must be either equal to 0 or between 86400 and 31536000 seconds. | `number` | `null` | no |
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | (Required) The maximum size of the Auto Scaling Group. | `number` | n/a | yes |
@@ -193,17 +194,17 @@ No modules.
 | <a name="input_metrics_granularity"></a> [metrics\_granularity](#input\_metrics\_granularity) | (Optional) The granularity to associate with the metrics to collect. The only valid value is `1Minute`. Default is `1Minute`. | `string` | `"1Minute"` | no |
 | <a name="input_min_elb_capacity"></a> [min\_elb\_capacity](#input\_min\_elb\_capacity) | (Optional) Setting this causes Terraform to wait for this number of instances from this Auto Scaling Group to show up healthy in the ELB only on creation. Updates will not wait on ELB instance number changes. | `number` | `null` | no |
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | (Required) The minimum size of the Auto Scaling Group. | `number` | n/a | yes |
-| <a name="input_mixed_instances_policy"></a> [mixed\_instances\_policy](#input\_mixed\_instances\_policy) | (Optional) Configuration block containing settings to define launch targets for Auto Scaling groups. | `any` | `{}` | no |
+| <a name="input_mixed_instances_policy"></a> [mixed\_instances\_policy](#input\_mixed\_instances\_policy) | (Optional) Configuration block containing settings to define launch targets for Auto Scaling groups. | `any` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Optional) The name of the Auto Scaling Group. By default generated by Terraform. Conflicts with `name_prefix` | `string` | `null` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | (Optional) Creates a unique name beginning with the specified prefix. Conflicts with `name`. | `string` | `null` | no |
 | <a name="input_network_interfaces"></a> [network\_interfaces](#input\_network\_interfaces) | (Optional) Customize network interfaces to be attached at instance boot time. | `any` | `[]` | no |
-| <a name="input_placement"></a> [placement](#input\_placement) | (Optional) The placement of the instance. | `map(string)` | `{}` | no |
+| <a name="input_placement"></a> [placement](#input\_placement) | (Optional) The placement of the instance. | `any` | `{}` | no |
 | <a name="input_placement_group"></a> [placement\_group](#input\_placement\_group) | (Optional) The name of the placement group into which you'll launch your instances, if any. | `string` | `null` | no |
-| <a name="input_private_dns_name_options"></a> [private\_dns\_name\_options](#input\_private\_dns\_name\_options) | (Optional) The options for the instance hostname. The default values are inherited from the subnet. | `map(string)` | `{}` | no |
+| <a name="input_private_dns_name_options"></a> [private\_dns\_name\_options](#input\_private\_dns\_name\_options) | (Optional) The options for the instance hostname. The default values are inherited from the subnet. | `any` | `{}` | no |
 | <a name="input_protect_from_scale_in"></a> [protect\_from\_scale\_in](#input\_protect\_from\_scale\_in) | (Optional) Allows setting instance protection. The Auto Scaling Group will not select instances with this setting for termination during scale in events. | `bool` | `null` | no |
 | <a name="input_ram_disk_id"></a> [ram\_disk\_id](#input\_ram\_disk\_id) | (Optional) The ID of the RAM disk. | `string` | `null` | no |
 | <a name="input_retention_in_days"></a> [retention\_in\_days](#input\_retention\_in\_days) | Specifies the number of days you want to retain log events in the specified log group. Possible values are: 1, 3, 5, 7, 14, 30, 60, 90, 120, 150, 180, 365, 400, 545, 731, 1827, 3653, and 0. If you select 0, the events in the log group are always retained and never expire. | `number` | `1827` | no |
-| <a name="input_schedules"></a> [schedules](#input\_schedules) | Schedules configuration block | `map(any)` | `{}` | no |
+| <a name="input_schedules"></a> [schedules](#input\_schedules) | Schedules configuration block | `any` | `{}` | no |
 | <a name="input_security_group_egress"></a> [security\_group\_egress](#input\_security\_group\_egress) | The rules block for defining additional egress rules | `any` | `[]` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | A list of security group IDs to associate. | `list(string)` | `[]` | no |
 | <a name="input_security_group_ingress"></a> [security\_group\_ingress](#input\_security\_group\_ingress) | The rules block for defining additional ingress rules | `any` | `[]` | no |
@@ -225,7 +226,7 @@ No modules.
 | <a name="input_vpc_zone_identifier"></a> [vpc\_zone\_identifier](#input\_vpc\_zone\_identifier) | (Optional) A list of subnet IDs to launch resources in. Subnets automatically determine which availability zones the group will reside. Conflicts with `availability_zones`. | `list(string)` | `null` | no |
 | <a name="input_wait_for_capacity_timeout"></a> [wait\_for\_capacity\_timeout](#input\_wait\_for\_capacity\_timeout) | (Default: "10m") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out. | `string` | `"1m"` | no |
 | <a name="input_wait_for_elb_capacity"></a> [wait\_for\_elb\_capacity](#input\_wait\_for\_elb\_capacity) | (Optional) Setting this will cause Terraform to wait for exactly this number of healthy instances from this Auto Scaling Group in all attached load balancers on both create and update operations. (Takes precedence over `min_elb_capacity` behavior.) | `number` | `null` | no |
-| <a name="input_warm_pool"></a> [warm\_pool](#input\_warm\_pool) | (Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group. | `map(string)` | `{}` | no |
+| <a name="input_warm_pool"></a> [warm\_pool](#input\_warm\_pool) | (Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group. | `any` | `{}` | no |
 
 ## Outputs
 

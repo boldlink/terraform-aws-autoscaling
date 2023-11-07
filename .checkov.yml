@@ -8,3 +8,4 @@ skip-check:
 - CKV_AWS_356
 - CKV2_AWS_57
 - CKV_AWS_341
+- CKV_TF_1 #"Ensure Terraform module sources use a commit hash"

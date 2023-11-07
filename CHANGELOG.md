@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
 
+##  [2.0.1] - 2023-11-07
+- feat: showcased usage of different attributes in complete example
+- fix: map variables from type map to any to allow usage of diverse object blocks within a dynamic block
+
 ##  [2.0.0] - 2023-09-05
 ### Changes
 - feat: Added ssm support and removed key pair creation for different linux distros
@@ -76,8 +80,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.1...HEAD
 
+[2.0.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.1
 [2.0.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.0
 [1.2.2]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.2
 [1.2.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.1

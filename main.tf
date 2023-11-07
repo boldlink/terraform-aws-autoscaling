@@ -1,11 +1,11 @@
 ##### Autoscaling
 locals {
   launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
-  launch_template_version = coalesce(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version)
+  launch_template_id      = var.create_launch_template ? aws_launch_template.main[0].id : var.launch_template_id
+  launch_template_version = coalesce(var.launch_template_version, try(aws_launch_template.main[0].latest_version, null), var.external_launch_template_version)
 }
-############################
+
 ### Cloudwatch resources
-############################
 resource "aws_kms_key" "cloudwatch" {
   count                   = var.install_cloudwatch_agent ? 1 : 0
   description             = "${var.name} Log Group KMS key"
@@ -23,9 +23,7 @@ resource "aws_cloudwatch_log_group" "main" {
   tags              = var.tags
 }
 
-############################
 ### IAM Resources
-############################
 resource "aws_iam_instance_profile" "main" {
   count = var.create_instance_profile ? 1 : 0
   name  = "${var.name}-iam-role"
@@ -104,9 +102,7 @@ resource "aws_iam_role_policy" "logs_policy" {
   })
 }
 
-############################
 ### Security Group
-############################
 resource "aws_security_group" "main" {
   name        = var.name
   description = "ASG Group Security Group"
@@ -138,9 +134,7 @@ resource "aws_security_group" "main" {
   tags = var.tags
 }
 
-############################
 ### ASG resources
-############################
 resource "aws_autoscaling_group" "main" {
   name                 = var.name
   name_prefix          = var.name_prefix
@@ -160,39 +154,186 @@ resource "aws_autoscaling_group" "main" {
     }
   }
 
+  #dynamic "mixed_instances_policy" {
+  #  for_each = var.use_mixed_instances_policy ? [var.mixed_instances_policy] : []
+  #  content {
+  #    dynamic "instances_distribution" {
+  #      for_each = lookup(mixed_instances_policy.value, "instances_distribution", [])
+  #      content {
+  #        on_demand_allocation_strategy            = try(instances_distribution.value.on_demand_allocation_strategy, null)
+  #        on_demand_base_capacity                  = try(instances_distribution.value.on_demand_base_capacity, null)
+  #        on_demand_percentage_above_base_capacity = try(instances_distribution.value.on_demand_percentage_above_base_capacity, null)
+  #        spot_allocation_strategy                 = try(instances_distribution.value.spot_allocation_strategy, null)
+  #        spot_instance_pools                      = try(instances_distribution.value.spot_instance_pools, null)
+  #        spot_max_price                           = try(instances_distribution.value.spot_max_price, null)
+  #      }
+  #    }
+  #
+  #    launch_template {
+  #      launch_template_specification {
+  #        launch_template_name = local.launch_template
+  #        version              = local.launch_template_version
+  #      }
+  #
+  #      dynamic "override" {
+  #        for_each = try(mixed_instances_policy.value.override, [])
+  #        content {
+  #          instance_type     = try(override.value.instance_type, null)
+  #          weighted_capacity = try(override.value.weighted_capacity, null)
+  #
+  #          dynamic "launch_template_specification" {
+  #            for_each = try(override.value.launch_template_specification, [])
+  #            content {
+  #              launch_template_id = try(launch_template_specification.value.launch_template_id, null)
+  #            }
+  #          }
+  #        }
+  #      }
+  #    }
+  #  }
+  #}
+
   dynamic "mixed_instances_policy" {
     for_each = var.use_mixed_instances_policy ? [var.mixed_instances_policy] : []
     content {
       dynamic "instances_distribution" {
-        for_each = lookup(mixed_instances_policy.value, "instances_distribution", [])
+        for_each = try([mixed_instances_policy.value.instances_distribution], [])
         content {
-          on_demand_allocation_strategy            = lookup(instances_distribution.value, "on_demand_allocation_strategy", null)
-          on_demand_base_capacity                  = lookup(instances_distribution.value, "on_demand_base_capacity", null)
-          on_demand_percentage_above_base_capacity = lookup(instances_distribution.value, "on_demand_percentage_above_base_capacity", null)
-          spot_allocation_strategy                 = lookup(instances_distribution.value, "spot_allocation_strategy", null)
-          spot_instance_pools                      = lookup(instances_distribution.value, "spot_instance_pools", null)
-          spot_max_price                           = lookup(instances_distribution.value, "spot_max_price", null)
+          on_demand_allocation_strategy            = try(instances_distribution.value.on_demand_allocation_strategy, null)
+          on_demand_base_capacity                  = try(instances_distribution.value.on_demand_base_capacity, null)
+          on_demand_percentage_above_base_capacity = try(instances_distribution.value.on_demand_percentage_above_base_capacity, null)
+          spot_allocation_strategy                 = try(instances_distribution.value.spot_allocation_strategy, null)
+          spot_instance_pools                      = try(instances_distribution.value.spot_instance_pools, null)
+          spot_max_price                           = try(instances_distribution.value.spot_max_price, null)
         }
       }
 
       launch_template {
         launch_template_specification {
-          launch_template_name = local.launch_template
-          version              = local.launch_template_version
+          launch_template_id = local.launch_template_id
+          version            = local.launch_template_version
         }
 
         dynamic "override" {
-          for_each = lookup(mixed_instances_policy.value, "override", [])
-          content {
-            instance_type     = lookup(override.value, "instance_type", null)
-            weighted_capacity = lookup(override.value, "weighted_capacity", null)
+          for_each = try(mixed_instances_policy.value.override, [])
 
-            dynamic "launch_template_specification" {
-              for_each = lookup(override.value, "launch_template_specification", [])
+          content {
+            dynamic "instance_requirements" {
+              for_each = try([override.value.instance_requirements], [])
+
               content {
-                launch_template_id = lookup(launch_template_specification.value, "launch_template_id", null)
+                dynamic "accelerator_count" {
+                  for_each = try([instance_requirements.value.accelerator_count], [])
+
+                  content {
+                    max = try(accelerator_count.value.max, null)
+                    min = try(accelerator_count.value.min, null)
+                  }
+                }
+
+                accelerator_manufacturers = try(instance_requirements.value.accelerator_manufacturers, null)
+                accelerator_names         = try(instance_requirements.value.accelerator_names, null)
+
+                dynamic "accelerator_total_memory_mib" {
+                  for_each = try([instance_requirements.value.accelerator_total_memory_mib], [])
+
+                  content {
+                    max = try(accelerator_total_memory_mib.value.max, null)
+                    min = try(accelerator_total_memory_mib.value.min, null)
+                  }
+                }
+
+                accelerator_types      = try(instance_requirements.value.accelerator_types, null)
+                allowed_instance_types = try(instance_requirements.value.allowed_instance_types, null)
+                bare_metal             = try(instance_requirements.value.bare_metal, null)
+
+                dynamic "baseline_ebs_bandwidth_mbps" {
+                  for_each = try([instance_requirements.value.baseline_ebs_bandwidth_mbps], [])
+
+                  content {
+                    max = try(baseline_ebs_bandwidth_mbps.value.max, null)
+                    min = try(baseline_ebs_bandwidth_mbps.value.min, null)
+                  }
+                }
+
+                burstable_performance   = try(instance_requirements.value.burstable_performance, null)
+                cpu_manufacturers       = try(instance_requirements.value.cpu_manufacturers, null)
+                excluded_instance_types = try(instance_requirements.value.excluded_instance_types, null)
+                instance_generations    = try(instance_requirements.value.instance_generations, null)
+                local_storage           = try(instance_requirements.value.local_storage, null)
+                local_storage_types     = try(instance_requirements.value.local_storage_types, null)
+
+                dynamic "memory_gib_per_vcpu" {
+                  for_each = try([instance_requirements.value.memory_gib_per_vcpu], [])
+
+                  content {
+                    max = try(memory_gib_per_vcpu.value.max, null)
+                    min = try(memory_gib_per_vcpu.value.min, null)
+                  }
+                }
+
+                dynamic "memory_mib" {
+                  for_each = try([instance_requirements.value.memory_mib], [])
+
+                  content {
+                    max = try(memory_mib.value.max, null)
+                    min = try(memory_mib.value.min, null)
+                  }
+                }
+
+                dynamic "network_bandwidth_gbps" {
+                  for_each = try([instance_requirements.value.network_bandwidth_gbps], [])
+
+                  content {
+                    max = try(network_bandwidth_gbps.value.max, null)
+                    min = try(network_bandwidth_gbps.value.min, null)
+                  }
+                }
+
+                dynamic "network_interface_count" {
+                  for_each = try([instance_requirements.value.network_interface_count], [])
+
+                  content {
+                    max = try(network_interface_count.value.max, null)
+                    min = try(network_interface_count.value.min, null)
+                  }
+                }
+
+                on_demand_max_price_percentage_over_lowest_price = try(instance_requirements.value.on_demand_max_price_percentage_over_lowest_price, null)
+                require_hibernate_support                        = try(instance_requirements.value.require_hibernate_support, null)
+                spot_max_price_percentage_over_lowest_price      = try(instance_requirements.value.spot_max_price_percentage_over_lowest_price, null)
+
+                dynamic "total_local_storage_gb" {
+                  for_each = try([instance_requirements.value.total_local_storage_gb], [])
+
+                  content {
+                    max = try(total_local_storage_gb.value.max, null)
+                    min = try(total_local_storage_gb.value.min, null)
+                  }
+                }
+
+                dynamic "vcpu_count" {
+                  for_each = try([instance_requirements.value.vcpu_count], [])
+
+                  content {
+                    max = try(vcpu_count.value.max, null)
+                    min = try(vcpu_count.value.min, null)
+                  }
+                }
               }
             }
+
+            instance_type = try(override.value.instance_type, null)
+
+            dynamic "launch_template_specification" {
+              for_each = try([override.value.launch_template_specification], [])
+
+              content {
+                launch_template_id = try(launch_template_specification.value.launch_template_id, null)
+              }
+            }
+
+            weighted_capacity = try(override.value.weighted_capacity, null)
           }
         }
       }
@@ -203,12 +344,12 @@ resource "aws_autoscaling_group" "main" {
     for_each = var.initial_lifecycle_hooks
     content {
       name                    = initial_lifecycle_hook.value.name
-      default_result          = lookup(initial_lifecycle_hook.value, "default_result", null)
-      heartbeat_timeout       = lookup(initial_lifecycle_hook.value, "heartbeat_timeout", null)
+      default_result          = try(initial_lifecycle_hook.value.default_result, null)
+      heartbeat_timeout       = try(initial_lifecycle_hook.value.heartbeat_timeout, null)
       lifecycle_transition    = initial_lifecycle_hook.value.lifecycle_transition
-      notification_metadata   = lookup(initial_lifecycle_hook.value, "notification_metadata", null)
-      notification_target_arn = lookup(initial_lifecycle_hook.value, "notification_target_arn", null)
-      role_arn                = lookup(initial_lifecycle_hook.value, "role_arn", null)
+      notification_metadata   = try(initial_lifecycle_hook.value.notification_metadata, null)
+      notification_target_arn = try(initial_lifecycle_hook.value.notification_target_arn, null)
+      role_arn                = try(initial_lifecycle_hook.value.role_arn, null)
     }
   }
 
@@ -238,10 +379,14 @@ resource "aws_autoscaling_group" "main" {
       dynamic "preferences" {
         for_each = try([instance_refresh.value.preferences], [])
         content {
-          checkpoint_delay       = try(preferences.value.checkpoint_delay, null)
-          checkpoint_percentages = try(preferences.value.checkpoint_percentages, null)
-          instance_warmup        = try(preferences.value.instance_warmup, null)
-          min_healthy_percentage = try(preferences.value.min_healthy_percentage, null)
+          checkpoint_delay             = try(preferences.value.checkpoint_delay, null)
+          checkpoint_percentages       = try(preferences.value.checkpoint_percentages, null)
+          instance_warmup              = try(preferences.value.instance_warmup, null)
+          min_healthy_percentage       = try(preferences.value.min_healthy_percentage, null)
+          skip_matching                = try(preferences.value.skip_matching, null)
+          auto_rollback                = try(preferences.value.auto_rollback, null)
+          scale_in_protected_instances = try(preferences.value.scale_in_protected_instances, null)
+          standby_instances            = try(preferences.value.standby_instances, null)
         }
       }
       triggers = try(instance_refresh.value.triggers, null)
@@ -256,14 +401,14 @@ resource "aws_autoscaling_group" "main" {
       dynamic "instance_reuse_policy" {
         for_each = lookup(warm_pool.value, "instance_reuse_policy", [])
         content {
-          reuse_on_scale_in = lookup(instance_reuse_policy.value, "reuse_on_scale_in", null)
+          reuse_on_scale_in = try(instance_reuse_policy.value.reuse_on_scale_in, null)
         }
       }
     }
   }
 
   timeouts {
-    delete = lookup(var.timeouts, "delete", "10m")
+    delete = try(var.timeouts["delete"], "10m")
   }
 
   tag {
@@ -290,9 +435,8 @@ resource "aws_autoscaling_group" "main" {
   }
 }
 
-#####################################
+
 ### Launch Template
-#####################################
 resource "aws_launch_template" "main" {
   count                                = var.create_launch_template && var.external_launch_template_name == null ? 1 : 0
   name                                 = local.launch_template
@@ -460,22 +604,22 @@ resource "aws_launch_template" "main" {
   dynamic "placement" {
     for_each = length(var.placement) > 0 ? [var.placement] : []
     content {
-      affinity                = lookup(placement.value, "affinity", null)
-      availability_zone       = lookup(placement.value, "availability_zone", null)
-      group_name              = lookup(placement.value, "group_name", null)
-      host_id                 = lookup(placement.value, "host_id", null)
-      host_resource_group_arn = lookup(placement.value, "host_resource_group_arn", null)
-      spread_domain           = lookup(placement.value, "spread_domain", null)
-      tenancy                 = lookup(placement.value, "tenancy", null)
-      partition_number        = lookup(placement.value, "partition_number", null)
+      affinity                = try(placement.value.affinity, null)
+      availability_zone       = try(placement.value.availability_zone, null)
+      group_name              = try(placement.value.group_name, null)
+      host_id                 = try(placement.value.host_id, null)
+      host_resource_group_arn = try(placement.value.host_resource_group_arn, null)
+      spread_domain           = try(placement.value.spread_domain, null)
+      tenancy                 = try(placement.value.tenancy, null)
+      partition_number        = try(placement.value.partition_number, null)
     }
   }
 
   dynamic "private_dns_name_options" {
     for_each = length(var.private_dns_name_options) > 0 ? [var.private_dns_name_options] : []
     content {
-      enable_resource_name_dns_aaaa_record = lookup(private_dns_name_options.value, "enable_resource_name_dns_aaaa_record", null)
-      enable_resource_name_dns_a_record    = lookup(private_dns_name_options.value, "enable_resource_name_dns_a_record", null)
+      enable_resource_name_dns_aaaa_record = try(private_dns_name_options.value.enable_resource_name_dns_aaaa_record, null)
+      enable_resource_name_dns_a_record    = try(private_dns_name_options.value.enable_resource_name_dns_a_record, null)
       hostname_type                        = private_dns_name_options.value.hostname_type
     }
   }
@@ -497,38 +641,37 @@ resource "aws_autoscaling_schedule" "main" {
   for_each               = var.schedules
   scheduled_action_name  = each.key
   autoscaling_group_name = aws_autoscaling_group.main.name
-  min_size               = lookup(each.value, "min_size", null)
-  max_size               = lookup(each.value, "max_size", null)
-  desired_capacity       = lookup(each.value, "desired_capacity", null)
-  start_time             = lookup(each.value, "start_time", null)
-  end_time               = lookup(each.value, "end_time", null)
-  time_zone              = lookup(each.value, "time_zone", null)
-  recurrence             = lookup(each.value, "recurrence", null)
+  min_size               = try(each.value.min_size, null)
+  max_size               = try(each.value.max_size, null)
+  desired_capacity       = try(each.value.desired_capacity, null)
+  start_time             = try(each.value.start_time, null)
+  end_time               = try(each.value.end_time, null)
+  time_zone              = try(each.value.time_zone, null)
+  recurrence             = try(each.value.recurrence, null)
   # Syntax=>>[Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]
 }
 
-########################################
+
 ## Autoscaling Policies Resources
 ## Below are the resources to trigger autoscaling events and report to an email address (default)
-########################################
 resource "aws_autoscaling_policy" "main" {
   for_each                  = var.autoscaling_policy
   name                      = try(each.value.name, each.key)
   autoscaling_group_name    = aws_autoscaling_group.main.name
-  adjustment_type           = lookup(each.value, "adjustment_type", null)
-  policy_type               = lookup(each.value, "policy_type", null)
-  estimated_instance_warmup = lookup(each.value, "estimated_instance_warmup", null)
-  min_adjustment_magnitude  = lookup(each.value, "min_adjustment_magnitude", null)
-  cooldown                  = lookup(each.value, "cooldown", null)
-  scaling_adjustment        = lookup(each.value, "scaling_adjustment", null)
-  metric_aggregation_type   = lookup(each.value, "metric_aggregation_type", null)
+  adjustment_type           = try(each.value.adjustment_type, null)
+  policy_type               = try(each.value.policy_type, null)
+  estimated_instance_warmup = try(each.value.estimated_instance_warmup, null)
+  min_adjustment_magnitude  = try(each.value.min_adjustment_magnitude, null)
+  cooldown                  = try(each.value.cooldown, null)
+  scaling_adjustment        = try(each.value.scaling_adjustment, null)
+  metric_aggregation_type   = try(each.value.metric_aggregation_type, null)
 
   dynamic "step_adjustment" {
-    for_each = lookup(each.value, "step_adjustment", [])
+    for_each = try([each.value.step_adjustment], [])
     content {
       scaling_adjustment          = step_adjustment.value.scaling_adjustment
-      metric_interval_lower_bound = lookup(step_adjustment.value, "metric_interval_lower_bound", null)
-      metric_interval_upper_bound = lookup(step_adjustment.value, "metric_interval_upper_bound", null)
+      metric_interval_lower_bound = try(step_adjustment.value.metric_interval_lower_bound, null)
+      metric_interval_upper_bound = try(step_adjustment.value.metric_interval_upper_bound, null)
     }
   }
 
@@ -542,11 +685,13 @@ resource "aws_autoscaling_policy" "main" {
         for_each = try([target_tracking_configuration.value.predefined_metric_specification], [])
         content {
           predefined_metric_type = predefined_metric_specification.value.predefined_metric_type
+          resource_label         = try(predefined_metric_specification.value.resource_label, null)
         }
       }
 
       dynamic "customized_metric_specification" {
         for_each = try([target_tracking_configuration.value.customized_metric_specification], [])
+
         content {
 
           dynamic "metric_dimension" {
@@ -561,6 +706,45 @@ resource "aws_autoscaling_policy" "main" {
           namespace   = customized_metric_specification.value.namespace
           statistic   = customized_metric_specification.value.statistic
           unit        = try(customized_metric_specification.value.unit, null)
+
+          dynamic "metrics" {
+            for_each = try(customized_metric_specification.value.metrics, [])
+
+            content {
+              expression = try(metrics.value.expression, null)
+              id         = metrics.value.id
+              label      = try(metrics.value.label, null)
+
+              dynamic "metric_stat" {
+                for_each = try([metrics.value.metric_stat], [])
+
+                content {
+                  dynamic "metric" {
+                    for_each = try([metric_stat.value.metric], [])
+
+                    content {
+                      dynamic "dimensions" {
+                        for_each = try(metric.value.dimensions, [])
+
+                        content {
+                          name  = dimensions.value.name
+                          value = dimensions.value.value
+                        }
+                      }
+
+                      metric_name = metric.value.metric_name
+                      namespace   = metric.value.namespace
+                    }
+                  }
+
+                  stat = metric_stat.value.stat
+                  unit = try(metric_stat.value.unit, null)
+                }
+              }
+
+              return_data = try(metrics.value.return_data, null)
+            }
+          }
         }
       }
     }

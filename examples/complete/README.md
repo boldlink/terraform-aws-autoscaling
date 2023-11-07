@@ -27,19 +27,29 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.24.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
+| <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
+| <a name="module_enhanced_complete"></a> [enhanced\_complete](#module\_enhanced\_complete) | ../../ | n/a |
+| <a name="module_mixed_instances"></a> [mixed\_instances](#module\_mixed\_instances) | ../../ | n/a |
+| <a name="module_spot_one_time"></a> [spot\_one\_time](#module\_spot\_one\_time) | ../../ | n/a |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_ec2_capacity_reservation.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_capacity_reservation) | resource |
+| [aws_placement_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/placement_group) | resource |
+| [aws_security_group.network_interface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_ami.amazon_linux](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.additional_role_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
 | [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.supporting](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -66,9 +76,7 @@
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_outputs"></a> [outputs](#output\_outputs) | Output for various resources in this module |
+No outputs.
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Third party software

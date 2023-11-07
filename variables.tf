@@ -78,7 +78,13 @@ variable "launch_configuration" {
 variable "mixed_instances_policy" {
   type        = any
   description = "(Optional) Configuration block containing settings to define launch targets for Auto Scaling groups."
-  default     = {}
+  default     = null
+}
+
+variable "launch_template_id" {
+  type        = string
+  description = "The ID of external launch template to use"
+  default     = null
 }
 
 variable "initial_lifecycle_hooks" {
@@ -217,7 +223,7 @@ variable "instance_refresh" {
 }
 
 variable "warm_pool" {
-  type        = map(string)
+  type        = any
   description = "(Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group."
   default     = {}
 }
@@ -229,7 +235,7 @@ variable "tag" {
 }
 
 variable "schedules" {
-  type        = map(any)
+  type        = any
   description = "Schedules configuration block"
   default     = {}
 }
@@ -337,31 +343,31 @@ variable "block_device_mappings" {
 }
 
 variable "capacity_reservation_specification" {
-  type        = map(string)
+  type        = any
   description = "(Optional) Targeting for EC2 capacity reservations."
   default     = {}
 }
 
 variable "cpu_options" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The CPU options for the instance."
   default     = {}
 }
 
 variable "credit_specification" {
-  type        = map(string)
+  type        = any
   description = "(Optional) Customize the credit specification of the instance."
   default     = {}
 }
 
 variable "elastic_gpu_specifications" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The elastic GPU to attach to the instance."
   default     = {}
 }
 
 variable "elastic_inference_accelerator" {
-  type        = map(string)
+  type        = any
   description = "(Optional) Configuration block containing an Elastic Inference Accelerator to attach to the instance."
   default     = {}
 }
@@ -379,13 +385,13 @@ variable "hibernation_options" {
 }
 
 variable "instance_market_options" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The market (purchasing) option for the instance."
   default     = {}
 }
 
 variable "license_specifications" {
-  type        = map(string)
+  type        = any
   description = "(Optional) A list of license specifications to associate with."
   default     = {}
 }
@@ -427,13 +433,13 @@ variable "additional_role_policy_document" {
 }
 
 variable "placement" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The placement of the instance."
   default     = {}
 }
 
 variable "private_dns_name_options" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The options for the instance hostname. The default values are inherited from the subnet."
   default     = {}
 }
