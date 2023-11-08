@@ -27,12 +27,12 @@ output "arn" {
 
 #### SG
 output "security_group_id" {
-  value       = aws_security_group.main.id
+  value       = join("", aws_security_group.main[*].id)
   description = "ID of the security group."
 }
 
 output "security_group_name" {
-  value       = aws_security_group.main.name
+  value       = join("", aws_security_group.main[*].name)
   description = "The name of the security group"
 }
 

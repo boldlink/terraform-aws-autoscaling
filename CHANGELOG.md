@@ -15,21 +15,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: Add options in the complete example.
 - feat: Ability for userdata packages to be installed in different OS flavours.
 - feat: Dashboards integration for Cloudwatch.
-- feat: Expand the complete example further.
 - feat: Add updated features from tf resource page.
 - feat: Make the cwa json file a template of it’s own.
 - Feat: Allow to insert additional scripts at the stack level.
-- feat: Add example for external Launch Template
 - feat: Add more options to secrets manager where pem key is store (e.g tags, retention e.t.c).
 - feat: Remove/upgrade usage of deprecated hashicorp/template provider
 - fix: CKV_AWS_356 "Ensure no IAM policies documents allow “*” as a statement’s resource for restrictable actions"
 - fix: CKV2_AWS_57 "Ensure Secrets Manager secrets should have automatic rotation enabled"
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
+- fix: CKV_AWS_79 #Ensure Instance Metadata Service Version 1 is not enabled
+- fix: CKV_AWS_290 #Ensure IAM policies does not allow write access without constraints
+- fix: CKV_AWS_355 #Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions
+- fix: CKV2_AWS_5 #Ensure that Security Groups are attached to another resource
 
 ##  [2.0.1] - 2023-11-07
 - feat: showcased usage of different attributes in complete example
 - fix: map variables from type map to any to allow usage of diverse object blocks within a dynamic block
+- feat: Add example for external Launch Template
+- feat: Expand the complete example further.
 
 ##  [2.0.0] - 2023-09-05
 ### Changes

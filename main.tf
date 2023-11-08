@@ -104,6 +104,7 @@ resource "aws_iam_role_policy" "logs_policy" {
 
 ### Security Group
 resource "aws_security_group" "main" {
+  count       = var.create_launch_template ? 1 : 0
   name        = var.name
   description = "ASG Group Security Group"
   vpc_id      = var.vpc_id
@@ -140,7 +141,7 @@ resource "aws_autoscaling_group" "main" {
   name_prefix          = var.name_prefix
   max_size             = var.max_size
   min_size             = var.min_size
-  availability_zones   = var.availability_zones
+  availability_zones   = var.vpc_zone_identifier != null ? null : var.availability_zones
   capacity_rebalance   = var.capacity_rebalance
   default_cooldown     = var.default_cooldown
   launch_configuration = var.launch_configuration
@@ -356,6 +357,7 @@ resource "aws_autoscaling_group" "main" {
   health_check_grace_period = var.health_check_grace_period
   health_check_type         = var.health_check_type
   desired_capacity          = var.desired_capacity
+  desired_capacity_type     = var.desired_capacity_type
   force_delete              = var.force_delete
   load_balancers            = var.load_balancers
   vpc_zone_identifier       = var.vpc_zone_identifier
@@ -446,7 +448,7 @@ resource "aws_launch_template" "main" {
   image_id                             = var.image_id
   instance_type                        = var.instance_type
   user_data                            = var.install_ssm_agent || var.install_cloudwatch_agent ? data.template_cloudinit_config.config.rendered : var.user_data
-  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat([aws_security_group.main.id], var.security_group_ids))
+  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat(length(aws_security_group.main) > 0 ? [aws_security_group.main[0].id] : [], var.security_group_ids))
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
   disable_api_termination              = var.disable_api_termination
@@ -596,7 +598,7 @@ resource "aws_launch_template" "main" {
       network_interface_id         = try(network_interfaces.value.network_interface_id, null)
       network_card_index           = try(network_interfaces.value.network_card_index, null)
       private_ip_address           = try(network_interfaces.value.private_ip_address, null)
-      security_groups              = compact(concat([aws_security_group.main.id], var.security_group_ids))
+      security_groups              = compact(concat(length(aws_security_group.main) > 0 ? [aws_security_group.main[0].id] : [], var.security_group_ids))
       subnet_id                    = try(network_interfaces.value.subnet_id, null)
     }
   }
@@ -674,7 +676,7 @@ resource "aws_autoscaling_policy" "main" {
       metric_interval_upper_bound = try(step_adjustment.value.metric_interval_upper_bound, null)
     }
   }
-
+  ##<----------------------Update candidate------------------------->
   dynamic "target_tracking_configuration" {
     for_each = try([each.value.target_tracking_configuration], [])
     content {
@@ -697,14 +699,14 @@ resource "aws_autoscaling_policy" "main" {
           dynamic "metric_dimension" {
             for_each = try([customized_metric_specification.value.metric_dimension], [])
             content {
-              name  = try(metric_dimension.value.name, null)
-              value = try(metric_dimension.value.value, null)
+              name  = metric_dimension.value.name
+              value = metric_dimension.value.value
             }
           }
 
-          metric_name = customized_metric_specification.value.metric_name
-          namespace   = customized_metric_specification.value.namespace
-          statistic   = customized_metric_specification.value.statistic
+          metric_name = try(customized_metric_specification.value.metric_name, null)
+          namespace   = try(customized_metric_specification.value.namespace, null)
+          statistic   = try(customized_metric_specification.value.statistic, null)
           unit        = try(customized_metric_specification.value.unit, null)
 
           dynamic "metrics" {
@@ -749,6 +751,7 @@ resource "aws_autoscaling_policy" "main" {
       }
     }
   }
+  ##<----------------------Update candidate------------------------->
 
   dynamic "predictive_scaling_configuration" {
     for_each = try([each.value.predictive_scaling_configuration], [])

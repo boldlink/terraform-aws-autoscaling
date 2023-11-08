@@ -33,17 +33,23 @@
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_accelarators"></a> [accelarators](#module\_accelarators) | ../../ | n/a |
 | <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
+| <a name="module_custom_metrics"></a> [custom\_metrics](#module\_custom\_metrics) | ../../ | n/a |
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
 | <a name="module_enhanced_complete"></a> [enhanced\_complete](#module\_enhanced\_complete) | ../../ | n/a |
+| <a name="module_external_launch_template"></a> [external\_launch\_template](#module\_external\_launch\_template) | ../../ | n/a |
 | <a name="module_mixed_instances"></a> [mixed\_instances](#module\_mixed\_instances) | ../../ | n/a |
+| <a name="module_requirements"></a> [requirements](#module\_requirements) | ../../ | n/a |
 | <a name="module_spot_one_time"></a> [spot\_one\_time](#module\_spot\_one\_time) | ../../ | n/a |
+| <a name="module_warm_pool"></a> [warm\_pool](#module\_warm\_pool) | ../../ | n/a |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [aws_ec2_capacity_reservation.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_capacity_reservation) | resource |
+| [aws_launch_template.external](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_placement_group.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/placement_group) | resource |
 | [aws_security_group.network_interface](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_ami.amazon_linux](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |

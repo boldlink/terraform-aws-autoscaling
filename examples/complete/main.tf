@@ -7,6 +7,7 @@ module "ebs_kms" {
   alias_name       = "alias/${var.name}-key-alias"
   tags             = var.tags
 }
+
 module "complete" {
   #checkov:skip=CKV_AWS_260
   #checkov:skip=CKV_AWS_290
@@ -213,7 +214,7 @@ module "complete" {
     }
   }
 }
-#mixed
+
 module "mixed_instances" {
   #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
@@ -322,8 +323,6 @@ module "spot_one_time" {
   }
 }
 
-
-###complere
 resource "aws_placement_group" "main" {
   name     = "${var.name}-pg"
   strategy = "partition"
@@ -346,12 +345,6 @@ resource "aws_security_group" "network_interface" {
     ipv6_cidr_blocks = ["::/0"]
   }
 }
-
-#resource "aws_launch_template" "external" {
-#  name          = "${var.name}-external-lt"
-#  image_id      = "ami-1a2b3c"
-#  instance_type = "t3.medium"
-#}
 
 resource "aws_ec2_capacity_reservation" "main" {
   instance_type     = "c4.large"
@@ -484,4 +477,262 @@ module "enhanced_complete" {
     "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
     "autoscaling:EC2_INSTANCE_TERMINATE",
   ]
+}
+
+resource "aws_launch_template" "external" {
+  name          = "${var.name}-external-lt"
+  image_id      = data.aws_ami.amazon_linux.id
+  instance_type = "t3.medium"
+}
+
+module "external_launch_template" {
+  source              = "../../"
+  name                = "${var.name}-external-lt"
+  min_size            = 0
+  max_size            = 2
+  desired_capacity    = 1
+  vpc_zone_identifier = [local.private_subnets]
+  launch_template_id  = aws_launch_template.external.id
+  tags                = local.tags
+  depends_on          = [aws_launch_template.external]
+}
+
+module "warm_pool" {
+  source                 = "../../"
+  name                   = "${var.name}-warm-pool"
+  min_size               = 0
+  max_size               = 2
+  desired_capacity       = 1
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  image_id               = data.aws_ami.amazon_linux.id
+  instance_type          = "t3.nano"
+  vpc_id                 = local.vpc_id
+
+  warm_pool = {
+    pool_state                  = "Stopped"
+    min_size                    = 2
+    max_group_prepared_capacity = 3
+
+    instance_reuse_policy = {
+      reuse_on_scale_in = true
+    }
+  }
+
+  tags = local.tags
+}
+
+module "requirements" {
+  source                     = "../../"
+  name                       = "${var.name}-requirements"
+  min_size                   = 1
+  max_size                   = 3
+  desired_capacity           = 1
+  desired_capacity_type      = "units"
+  vpc_zone_identifier        = [local.private_subnets]
+  create_launch_template     = true
+  image_id                   = data.aws_ami.amazon_linux.id
+  vpc_id                     = local.vpc_id
+  use_mixed_instances_policy = true
+
+  mixed_instances_policy = {
+    instances_distribution = {
+      on_demand_allocation_strategy            = "lowest-price"
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 50
+    }
+
+    override = [
+      {
+        instance_requirements = {
+          bare_metal = "excluded"
+
+          baseline_ebs_bandwidth_mbps = {
+            min = 500
+            max = 2000
+          }
+
+          burstable_performance = "excluded"
+          cpu_manufacturers     = ["amd", "intel"]
+          #allowed_instance_types  = ["t3.medium", "t3.large", "c5.large", "m5.large"] # Added m5.large
+          excluded_instance_types = []
+          instance_generations    = ["current"]
+          local_storage           = "included"
+          local_storage_types     = ["ssd"]
+
+          memory_gib_per_vcpu = {
+            min = 2
+            max = 8
+          }
+
+          memory_mib = {
+            min = 2048
+            max = 32768
+          }
+
+          #network_bandwidth_gbps = {
+          #  min = 0.5 # Decreased min value
+          #  max = 20  # Increased max value
+          #}
+
+          network_interface_count = {
+            min = 1
+            max = 8
+          }
+
+          on_demand_max_price_percentage_over_lowest_price = 20
+          require_hibernate_support                        = true
+          spot_max_price_percentage_over_lowest_price      = 20
+
+          total_local_storage_gb = {
+            min = 8
+            max = 100
+          }
+
+          vcpu_count = {
+            min = 2
+            max = 8
+          }
+        }
+      }
+    ]
+  }
+}
+
+module "accelarators" {
+  source                     = "../../"
+  name                       = "${var.name}-accelarators"
+  min_size                   = 1
+  max_size                   = 3
+  desired_capacity           = 1
+  desired_capacity_type      = "units"
+  vpc_zone_identifier        = [local.private_subnets]
+  create_launch_template     = true
+  image_id                   = data.aws_ami.amazon_linux.id
+  vpc_id                     = local.vpc_id
+  use_mixed_instances_policy = true
+
+  mixed_instances_policy = {
+    override = [
+      {
+        instance_requirements = {
+          accelerator_count = {
+            min = 1
+            max = 64
+          }
+
+          accelerator_manufacturers = ["amazon-web-services", "amd", "nvidia"]
+          accelerator_names         = ["a100", "v100", "k80", "t4", "m60", "radeon-pro-v520"]
+
+          accelerator_total_memory_mib = {
+            min = 2048
+            max = 32640
+          }
+
+          accelerator_types = ["gpu", "inference"]
+          bare_metal        = "excluded"
+
+          burstable_performance = "excluded"
+          cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
+          local_storage         = "included"
+          local_storage_types   = ["ssd", "hdd"]
+
+          vcpu_count = {
+            min = 1
+            max = 6
+          }
+
+          memory_mib = {
+            min = 2048
+            max = 65000
+          }
+
+          total_local_storage_gb = {
+            min = 8
+            max = 500
+          }
+        }
+      }
+    ]
+  }
+}
+
+module "custom_metrics" {
+  source                 = "../../"
+  name                   = "${var.name}-custom-metrics"
+  min_size               = 1
+  max_size               = 3
+  desired_capacity       = 1
+  desired_capacity_type  = "units"
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  instance_type          = "t3.micro"
+  image_id               = data.aws_ami.amazon_linux.id
+  vpc_id                 = local.vpc_id
+  tags                   = merge({ "Name" = "${var.name}-custom-metrics" }, var.tags)
+
+  autoscaling_policy = {
+
+    custome_metrics = {
+
+      policy_type               = "TargetTrackingScaling"
+      estimated_instance_warmup = 180
+
+      target_tracking_configuration = {
+        target_value = 50.0
+
+        customized_metric_specification = {
+          #metric_name = "CustomMetrics" # Conflicts with metrics
+          #namespace   = "EC2Custom"
+          #statistic   = "Average"
+          #unit        = "Count"
+
+          metrics = [
+            {
+              label = "Get the queue size (the number of messages waiting to be processed)"
+              id    = "m1"
+              metric_stat = {
+                metric = {
+                  metric_name = "ApproximateNumberOfMessagesVisible"
+                  namespace   = "AWS/SQS"
+                  dimensions = [
+                    {
+                      name  = "QueueName"
+                      value = "my-queue"
+                    }
+                  ]
+                }
+                stat = "Sum"
+              }
+              return_data = false
+            },
+            {
+              label = "Get the group size (the number of InService instances)"
+              id    = "m2"
+              metric_stat = {
+                metric = {
+                  metric_name = "GroupInServiceInstances"
+                  namespace   = "AWS/AutoScaling"
+                  dimensions = [
+                    {
+                      name  = "${var.name}-custom-metrics"
+                      value = "my-asg"
+                    }
+                  ]
+                }
+                stat = "Average"
+              }
+              return_data = false #Exactly one element of the metrics list should return data
+            },
+            {
+              label       = "Calculate the backlog per instance"
+              id          = "e1"
+              expression  = "m1 / m2"
+              return_data = true
+            }
+          ]
+        }
+      }
+    }
+  }
 }
