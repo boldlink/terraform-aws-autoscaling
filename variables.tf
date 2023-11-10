@@ -177,7 +177,7 @@ variable "enabled_metrics" {
 variable "wait_for_capacity_timeout" {
   type        = string
   description = "(Default: \"10m\") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out."
-  default     = "1m"
+  default     = "10m"
 }
 
 variable "min_elb_capacity" {
