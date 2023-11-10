@@ -129,6 +129,10 @@ module "complete" {
         delete_on_termination = true
         volume_size           = 20
         volume_type           = "gp2"
+        encrypted             = true
+        iops                  = 300
+        throughput            = 200
+        kms_key_arn           = module.ebs_kms.arn
       }
     },
     {

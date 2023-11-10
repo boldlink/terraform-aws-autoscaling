@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: Mixed instances block to allow provision of external launch template
 - fix: security group to create on condition
 - fix: SG ID in outputs as a result of change in security group resource condition
-- fix: Modiified condition for picking security groups in `network_interfaces` block and `vpc_security_group_ids` arg
+- fix: Modified condition for picking security groups in `network_interfaces` block and `vpc_security_group_ids` arg
 
 
 ##  [2.0.0] - 2023-09-05
