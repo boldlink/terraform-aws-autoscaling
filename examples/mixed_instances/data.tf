@@ -26,17 +26,3 @@ data "aws_subnet" "private" {
   for_each = toset(data.aws_subnets.private.ids)
   id       = each.value
 }
-
-data "aws_caller_identity" "current" {}
-
-data "aws_partition" "current" {}
-
-data "aws_iam_policy_document" "additional_role_policy_document" {
-  version = "2012-10-17"
-
-  statement {
-    actions   = ["s3:ListBucket"]
-    resources = ["arn:${local.partition}:s3:::*"]
-    effect    = "Allow"
-  }
-}

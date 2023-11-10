@@ -39,6 +39,12 @@ variable "external_launch_template_name" {
   default     = null
 }
 
+variable "launch_template_id" {
+  type        = string
+  description = "The ID of external launch template to use"
+  default     = null
+}
+
 variable "external_launch_template_version" {
   type        = string
   description = "The version of the external launch template"

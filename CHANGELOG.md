@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- feat: Showcase usage of `private_dns_name_options` in examples
+- feat: Add `metrics` block in `custom_metric_specification` and showcase in examples
+- feat: add support for traffic source
+- feat: update mixed instances policy
+- feat: target_tracking_configuration
 - feat: Include installation of awslogs on ubuntu instances in the script
 - feat: add cloud-init script for creating windows OS SSM user when enabled.
 - feat: Allow the input of a custom awslogs.json configuration file on cwldata.sh installation`
@@ -26,6 +31,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV2_AWS_57 "Ensure Secrets Manager secrets should have automatic rotation enabled"
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
+
+##  [2.0.1] - 2023-11-10
+- feat: Added example for external launch template
+- feat: Showcased usage of mixed instances in examples
+- fix: Added missing external launch template name
+- fix: Mixed instances block to allow provision of external launch template
+- fix: security group to create on condition
+- fix: SG ID in outputs as a result of change in security group resource condition
+- fix: Modiified condition for picking security groups in `network_interfaces` block and `vpc_security_group_ids` arg
+
 
 ##  [2.0.0] - 2023-09-05
 ### Changes
@@ -76,8 +91,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.0...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.1...HEAD
 
+[2.0.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.1
 [2.0.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.0
 [1.2.2]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.2
 [1.2.1]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/1.2.1
