@@ -39,6 +39,12 @@ variable "external_launch_template_name" {
   default     = null
 }
 
+variable "launch_template_id" {
+  type        = string
+  description = "The ID of external launch template to use"
+  default     = null
+}
+
 variable "external_launch_template_version" {
   type        = string
   description = "The version of the external launch template"
@@ -171,7 +177,7 @@ variable "enabled_metrics" {
 variable "wait_for_capacity_timeout" {
   type        = string
   description = "(Default: \"10m\") A maximum duration that Terraform should wait for ASG instances to be healthy before timing out."
-  default     = "1m"
+  default     = "10m"
 }
 
 variable "min_elb_capacity" {

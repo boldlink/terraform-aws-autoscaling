@@ -1,3 +1,31 @@
+resource "aws_launch_template" "external" {
+  name          = "${var.name}-external-lt"
+  image_id      = data.aws_ami.amazon_linux.id
+  instance_type = "t3.micro"
+}
+
+module "external_launch_template" {
+  source              = "../../"
+  name                = "${var.name}-external-lt"
+  min_size            = 0
+  max_size            = 2
+  desired_capacity    = 1
+  vpc_zone_identifier = [local.private_subnets]
+  launch_template_id  = aws_launch_template.external.id
+  tags                = local.tags
+  depends_on          = [aws_launch_template.external]
+}
+
+module "ebs_kms" {
+  source           = "boldlink/kms/aws"
+  version          = "1.1.0"
+  description      = "AWS CMK for encrypting EC2 ebs volumes"
+  create_kms_alias = true
+  kms_policy       = local.kms_policy
+  alias_name       = "alias/${var.name}-key-alias"
+  tags             = var.tags
+}
+
 module "complete" {
   #checkov:skip=CKV_AWS_260
   #checkov:skip=CKV_AWS_290
@@ -83,13 +111,15 @@ module "complete" {
   ]
 
   # Launch template
-  launch_template_description = var.description
-  update_default_version      = var.update_default_version
-  create_launch_template      = var.create_launch_template
-  image_id                    = data.aws_ami.amazon_linux.id
-  instance_type               = var.instance_type
-  install_ssm_agent           = var.install_ssm_agent
-  install_cloudwatch_agent    = var.install_cloudwatch_agent
+  launch_template_description     = var.description
+  update_default_version          = var.update_default_version
+  create_launch_template          = var.create_launch_template
+  image_id                        = data.aws_ami.amazon_linux.id
+  instance_type                   = var.instance_type
+  install_ssm_agent               = var.install_ssm_agent
+  additional_role_policy_document = data.aws_iam_policy_document.additional_role_policy_document.json
+  create_instance_profile         = true
+  install_cloudwatch_agent        = var.install_cloudwatch_agent
   block_device_mappings = [
     {
       # Root volume
@@ -99,6 +129,8 @@ module "complete" {
         delete_on_termination = true
         volume_size           = 20
         volume_type           = "gp2"
+        encrypted             = true
+        kms_key_arn           = module.ebs_kms.arn
       }
     },
     {
@@ -107,10 +139,15 @@ module "complete" {
       ebs = {
         delete_on_termination = true
         volume_size           = 30
-        volume_type           = "gp2"
+        volume_type           = "gp3"
+        encrypted             = true
+        iops                  = 300
+        throughput            = 200
+        kms_key_arn           = module.ebs_kms.arn
       }
     }
   ]
+
   capacity_reservation_specification = {
     capacity_reservation_preference = "open"
   }
@@ -123,6 +160,12 @@ module "complete" {
       subnet_id             = local.private_subnets
     }
   ]
+
+  metadata_options = {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    http_endpoint               = "enabled"
+  }
 
   placement = {
     availability_zone = local.azs

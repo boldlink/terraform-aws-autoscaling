@@ -1,11 +1,11 @@
 ##### Autoscaling
 locals {
   launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
-  launch_template_version = coalesce(var.launch_template_version, aws_launch_template.main[0].latest_version, var.external_launch_template_version)
+  launch_template_id      = var.create_launch_template ? aws_launch_template.main[0].id : var.launch_template_id
+  launch_template_version = coalesce(var.launch_template_version, try(aws_launch_template.main[0].latest_version, null), var.external_launch_template_version)
 }
-############################
+
 ### Cloudwatch resources
-############################
 resource "aws_kms_key" "cloudwatch" {
   count                   = var.install_cloudwatch_agent ? 1 : 0
   description             = "${var.name} Log Group KMS key"
@@ -23,9 +23,7 @@ resource "aws_cloudwatch_log_group" "main" {
   tags              = var.tags
 }
 
-############################
 ### IAM Resources
-############################
 resource "aws_iam_instance_profile" "main" {
   count = var.create_instance_profile ? 1 : 0
   name  = "${var.name}-iam-role"
@@ -104,10 +102,9 @@ resource "aws_iam_role_policy" "logs_policy" {
   })
 }
 
-############################
 ### Security Group
-############################
 resource "aws_security_group" "main" {
+  count       = var.create_launch_template ? 1 : 0
   name        = var.name
   description = "ASG Group Security Group"
   vpc_id      = var.vpc_id
@@ -138,9 +135,7 @@ resource "aws_security_group" "main" {
   tags = var.tags
 }
 
-############################
 ### ASG resources
-############################
 resource "aws_autoscaling_group" "main" {
   name                 = var.name
   name_prefix          = var.name_prefix
@@ -164,33 +159,33 @@ resource "aws_autoscaling_group" "main" {
     for_each = var.use_mixed_instances_policy ? [var.mixed_instances_policy] : []
     content {
       dynamic "instances_distribution" {
-        for_each = lookup(mixed_instances_policy.value, "instances_distribution", [])
+        for_each = try([mixed_instances_policy.value.instances_distribution], [])
         content {
-          on_demand_allocation_strategy            = lookup(instances_distribution.value, "on_demand_allocation_strategy", null)
-          on_demand_base_capacity                  = lookup(instances_distribution.value, "on_demand_base_capacity", null)
-          on_demand_percentage_above_base_capacity = lookup(instances_distribution.value, "on_demand_percentage_above_base_capacity", null)
-          spot_allocation_strategy                 = lookup(instances_distribution.value, "spot_allocation_strategy", null)
-          spot_instance_pools                      = lookup(instances_distribution.value, "spot_instance_pools", null)
-          spot_max_price                           = lookup(instances_distribution.value, "spot_max_price", null)
+          on_demand_allocation_strategy            = try(instances_distribution.value.on_demand_allocation_strategy, null)
+          on_demand_base_capacity                  = try(instances_distribution.value.on_demand_base_capacity, null)
+          on_demand_percentage_above_base_capacity = try(instances_distribution.value.on_demand_percentage_above_base_capacity, null)
+          spot_allocation_strategy                 = try(instances_distribution.value.spot_allocation_strategy, null)
+          spot_instance_pools                      = try(instances_distribution.value.spot_instance_pools, null)
+          spot_max_price                           = try(instances_distribution.value.spot_max_price, null)
         }
       }
 
       launch_template {
         launch_template_specification {
-          launch_template_name = local.launch_template
-          version              = local.launch_template_version
+          launch_template_id = local.launch_template_id
+          version            = local.launch_template_version
         }
 
         dynamic "override" {
-          for_each = lookup(mixed_instances_policy.value, "override", [])
+          for_each = try(mixed_instances_policy.value.overrides, mixed_instances_policy.value.override, [])
           content {
-            instance_type     = lookup(override.value, "instance_type", null)
-            weighted_capacity = lookup(override.value, "weighted_capacity", null)
+            instance_type     = try(override.value.instance_type, null)
+            weighted_capacity = try(override.value.weighted_capacity, null)
 
             dynamic "launch_template_specification" {
-              for_each = lookup(override.value, "launch_template_specification", [])
+              for_each = try([override.value.launch_template_specification], [])
               content {
-                launch_template_id = lookup(launch_template_specification.value, "launch_template_id", null)
+                launch_template_id = try(launch_template_specification.value.launch_template_id, null)
               }
             }
           }
@@ -290,9 +285,7 @@ resource "aws_autoscaling_group" "main" {
   }
 }
 
-#####################################
 ### Launch Template
-#####################################
 resource "aws_launch_template" "main" {
   count                                = var.create_launch_template && var.external_launch_template_name == null ? 1 : 0
   name                                 = local.launch_template
@@ -302,7 +295,7 @@ resource "aws_launch_template" "main" {
   image_id                             = var.image_id
   instance_type                        = var.instance_type
   user_data                            = var.install_ssm_agent || var.install_cloudwatch_agent ? data.template_cloudinit_config.config.rendered : var.user_data
-  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat([aws_security_group.main.id], var.security_group_ids))
+  vpc_security_group_ids               = length(var.network_interfaces) > 0 ? [] : compact(concat(length(aws_security_group.main) > 0 ? [aws_security_group.main[0].id] : [], var.security_group_ids))
   default_version                      = var.default_version
   update_default_version               = var.update_default_version
   disable_api_termination              = var.disable_api_termination
@@ -322,7 +315,7 @@ resource "aws_launch_template" "main" {
         content {
           delete_on_termination = try(ebs.value.delete_on_termination, null)
           encrypted             = try(ebs.value.encrypted, null)
-          kms_key_id            = try(ebs.value.kms_key_id, null)
+          kms_key_id            = try(ebs.value.kms_key_id, ebs.value.kms_key_arn, null)
           iops                  = try(ebs.value.iops, null)
           throughput            = try(ebs.value.throughput, null)
           snapshot_id           = try(ebs.value.snapshot_id, null)
@@ -452,7 +445,7 @@ resource "aws_launch_template" "main" {
       network_interface_id         = try(network_interfaces.value.network_interface_id, null)
       network_card_index           = try(network_interfaces.value.network_card_index, null)
       private_ip_address           = try(network_interfaces.value.private_ip_address, null)
-      security_groups              = compact(concat([aws_security_group.main.id], var.security_group_ids))
+      security_groups              = compact(concat(length(aws_security_group.main) > 0 ? [aws_security_group.main[0].id] : [], var.security_group_ids))
       subnet_id                    = try(network_interfaces.value.subnet_id, null)
     }
   }
@@ -507,10 +500,8 @@ resource "aws_autoscaling_schedule" "main" {
   # Syntax=>>[Minute] [Hour] [Day_of_Month] [Month_of_Year] [Day_of_Week]
 }
 
-########################################
 ## Autoscaling Policies Resources
 ## Below are the resources to trigger autoscaling events and report to an email address (default)
-########################################
 resource "aws_autoscaling_policy" "main" {
   for_each                  = var.autoscaling_policy
   name                      = try(each.value.name, each.key)
@@ -557,9 +548,9 @@ resource "aws_autoscaling_policy" "main" {
             }
           }
 
-          metric_name = customized_metric_specification.value.metric_name
-          namespace   = customized_metric_specification.value.namespace
-          statistic   = customized_metric_specification.value.statistic
+          metric_name = try(customized_metric_specification.value.metric_name, null)
+          namespace   = try(customized_metric_specification.value.namespace, null)
+          statistic   = try(customized_metric_specification.value.statistic, null)
           unit        = try(customized_metric_specification.value.unit, null)
         }
       }
