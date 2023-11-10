@@ -40,12 +40,6 @@ variable "desired_capacity" {
   default     = 1
 }
 
-variable "install_cloudwatch_agent" {
-  type        = bool
-  description = "Specify whether to have cloudwatch agent installed in created instances"
-  default     = true
-}
-
 variable "architecture" {
   type        = string
   description = "The architecture of the instance to be launched"

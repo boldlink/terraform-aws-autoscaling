@@ -8,7 +8,7 @@ module "mixed_instances" {
   desired_capacity    = var.desired_capacity
   vpc_id              = local.vpc_id
   vpc_zone_identifier = local.subnet_id
-  tags                = var.tags
+  tags                = local.tags
 
   # New block for setting up mixed instances policy
   use_mixed_instances_policy = true
@@ -53,6 +53,4 @@ module "mixed_instances" {
   timeouts = {
     delete = "10m"
   }
-
-#   ebs_optimized = true
 }
