@@ -53,7 +53,7 @@ You can use Boldlink VPC Endpoints Terraform module [here](https://github.com/bo
 ```hcl
 module "minimal" {
   source              = "boldlink/autoscaling/aws"
-  version             = "<provide_latest_versiob_here>"
+  version             = "<provide_latest_version_here>"
 
   ## Autoscaling group
   name                = local.name

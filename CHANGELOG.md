@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- fix: Troubleshoot why ssm is not installed on the instances and fix
 - feat: Showcase usage of external security group (`var.security_group_ids`)
 - feat: Showcase usage of `private_dns_name_options` in examples
 - feat: Add `metrics` block in `custom_metric_specification` and showcase in examples

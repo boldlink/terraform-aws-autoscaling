@@ -19,7 +19,7 @@ module "external_launch_template" {
 module "ebs_kms" {
   source           = "boldlink/kms/aws"
   version          = "1.1.0"
-  description      = "AWS CMK for encrypting eks ebs volumes"
+  description      = "AWS CMK for encrypting EC2 ebs volumes"
   create_kms_alias = true
   kms_policy       = local.kms_policy
   alias_name       = "alias/${var.name}-key-alias"
