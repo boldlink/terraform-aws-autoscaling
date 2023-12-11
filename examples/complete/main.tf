@@ -1,5 +1,5 @@
 resource "aws_launch_template" "external" {
-#checkov:skip=CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
+  #checkov:skip=CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
   name          = "${var.name}-external-lt"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t3.micro"
