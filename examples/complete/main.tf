@@ -1,10 +1,14 @@
 resource "aws_launch_template" "external" {
+#checkov:skip=CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
   name          = "${var.name}-external-lt"
   image_id      = data.aws_ami.amazon_linux.id
   instance_type = "t3.micro"
 }
 
 module "external_launch_template" {
+  #checkov:skip=CKV_AWS_260
+  #checkov:skip=CKV_AWS_290
+  #checkov:skip=CKV_AWS_355
   source              = "../../"
   name                = "${var.name}-external-lt"
   min_size            = 0
@@ -231,6 +235,88 @@ module "complete" {
             predefined_metric_type = "ASGTotalCPUUtilization"
             resource_label         = "testLabel"
           }
+        }
+      }
+    }
+  }
+}
+
+module "custom_metrics" {
+  #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                 = "../../"
+  name                   = "${var.name}-custom-metrics"
+  min_size               = 1
+  max_size               = 3
+  desired_capacity       = 1
+  desired_capacity_type  = "units"
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  instance_type          = "t3.micro"
+  image_id               = data.aws_ami.amazon_linux.id
+  vpc_id                 = local.vpc_id
+  tags                   = merge({ "Name" = "${var.name}-custom-metrics" }, var.tags)
+
+  autoscaling_policy = {
+
+    custom_metrics = {
+
+      policy_type               = "TargetTrackingScaling"
+      estimated_instance_warmup = 180
+
+      target_tracking_configuration = {
+        target_value = 50.0
+
+        customized_metric_specification = {
+          #metric_name = "CustomMetrics" # Conflicts with metrics
+          #namespace   = "EC2Custom"
+          #statistic   = "Average"
+          #unit        = "Count"
+
+          metrics = [
+            {
+              label = "Get the queue size (the number of messages waiting to be processed)"
+              id    = "m1"
+              metric_stat = {
+                metric = {
+                  metric_name = "ApproximateNumberOfMessagesVisible"
+                  namespace   = "AWS/SQS"
+                  dimensions = [
+                    {
+                      name  = "QueueName"
+                      value = "my-queue"
+                    }
+                  ]
+                }
+                stat = "Sum"
+              }
+              return_data = false
+            },
+            {
+              label = "Get the group size (the number of InService instances)"
+              id    = "m2"
+              metric_stat = {
+                metric = {
+                  metric_name = "GroupInServiceInstances"
+                  namespace   = "AWS/AutoScaling"
+                  dimensions = [
+                    {
+                      name  = "${var.name}-custom-metrics"
+                      value = "my-asg"
+                    }
+                  ]
+                }
+                stat = "Average"
+              }
+              return_data = false #Exactly one element of the metrics list should return data
+            },
+            {
+              label       = "Calculate the backlog per instance"
+              id          = "e1"
+              expression  = "m1 / m2"
+              return_data = true
+            }
+          ]
         }
       }
     }
