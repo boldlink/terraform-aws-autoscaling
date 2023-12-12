@@ -27,13 +27,14 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.25.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.30.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
+| <a name="module_custom_metrics"></a> [custom\_metrics](#module\_custom\_metrics) | ../../ | n/a |
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
 | <a name="module_external_launch_template"></a> [external\_launch\_template](#module\_external\_launch\_template) | ../../ | n/a |
 
