@@ -249,7 +249,6 @@ module "custom_metrics" {
   min_size               = 1
   max_size               = 3
   desired_capacity       = 1
-  desired_capacity_type  = "units"
   vpc_zone_identifier    = [local.private_subnets]
   create_launch_template = true
   instance_type          = "t3.micro"

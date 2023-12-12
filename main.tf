@@ -394,7 +394,6 @@ resource "aws_autoscaling_group" "main" {
     ignore_changes = [
       name,
       id,
-      desired_capacity_type
     ]
   }
 }
