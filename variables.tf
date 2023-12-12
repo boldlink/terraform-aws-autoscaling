@@ -114,7 +114,7 @@ variable "desired_capacity" {
 variable "desired_capacity_type" {
   type        = string
   description = "(Optional) The unit of measurement for the value specified for `desired_capacity`. Supported for attribute-based instance type selection only. Valid values: \"units\", \"vcpu\", \"memory-mib\"."
-  default     = null
+  default     = "units"
 }
 
 variable "force_delete" {
