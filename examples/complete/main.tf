@@ -321,3 +321,58 @@ module "custom_metrics" {
     }
   }
 }
+
+module "requirements" {
+ #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+ #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+ source                     = "../../"
+  name                       = "${var.name}-requirements"
+  min_size                   = 1
+  max_size                   = 3
+  desired_capacity           = 1
+  desired_capacity_type      = "units"
+  vpc_zone_identifier        = [local.private_subnets]
+  create_launch_template     = true
+  image_id                   = data.aws_ami.amazon_linux.id
+  vpc_id                     = local.vpc_id
+  use_mixed_instances_policy = true
+
+  mixed_instances_policy = {
+    instances_distribution = {
+      on_demand_allocation_strategy            = "lowest-price"
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 50
+    }
+
+    override = [
+      {
+        instance_requirements = {
+          bare_metal            = "excluded"
+          burstable_performance = "excluded"
+          cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
+          instance_generations  = ["current"]
+          local_storage         = "excluded"
+
+          memory_mib = {
+            min = 1024
+            max = 8192
+          }
+
+          network_interface_count = {
+            min = 1
+            max = 2
+          }
+
+          on_demand_max_price_percentage_over_lowest_price = 10
+          require_hibernate_support                        = false
+          spot_max_price_percentage_over_lowest_price      = 10
+
+          vcpu_count = {
+            min = 1
+            max = 5
+          }
+        }
+      }
+    ]
+  }
+}
