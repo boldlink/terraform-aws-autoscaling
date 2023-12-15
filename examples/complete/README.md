@@ -37,6 +37,7 @@
 | <a name="module_custom_metrics"></a> [custom\_metrics](#module\_custom\_metrics) | ../../ | n/a |
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
 | <a name="module_external_launch_template"></a> [external\_launch\_template](#module\_external\_launch\_template) | ../../ | n/a |
+| <a name="module_requirements"></a> [requirements](#module\_requirements) | ../../ | n/a |
 
 ## Resources
 
