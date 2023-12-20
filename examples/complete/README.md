@@ -27,7 +27,7 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.30.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.31.0 |
 
 ## Modules
 
@@ -38,6 +38,7 @@
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
 | <a name="module_external_launch_template"></a> [external\_launch\_template](#module\_external\_launch\_template) | ../../ | n/a |
 | <a name="module_requirements"></a> [requirements](#module\_requirements) | ../../ | n/a |
+| <a name="module_warm_pool"></a> [warm\_pool](#module\_warm\_pool) | ../../ | n/a |
 
 ## Resources
 
@@ -74,9 +75,7 @@
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_outputs"></a> [outputs](#output\_outputs) | Output for various resources in this module |
+No outputs.
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Third party software

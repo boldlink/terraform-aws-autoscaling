@@ -376,3 +376,28 @@ module "requirements" {
     ]
   }
 }
+
+module "warm_pool" {
+  source                 = "../../"
+  name                   = "${var.name}-warm-pool"
+  min_size               = 0
+  max_size               = 2
+  desired_capacity       = 1
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  image_id               = data.aws_ami.amazon_linux.id
+  instance_type          = "t3.nano"
+  vpc_id                 = local.vpc_id
+
+  warm_pool = {
+    pool_state                  = "Stopped"
+    min_size                    = 2
+    max_group_prepared_capacity = 3
+
+    instance_reuse_policy = {
+      reuse_on_scale_in = true
+    }
+  }
+
+  tags = local.tags
+}

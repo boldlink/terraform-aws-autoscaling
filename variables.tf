@@ -229,7 +229,7 @@ variable "instance_refresh" {
 }
 
 variable "warm_pool" {
-  type        = map(string)
+  type        = any
   description = "(Optional) If this block is configured, add a Warm Pool to the specified Auto Scaling group."
   default     = {}
 }
