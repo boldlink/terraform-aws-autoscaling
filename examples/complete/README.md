@@ -38,6 +38,7 @@
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
 | <a name="module_external_launch_template"></a> [external\_launch\_template](#module\_external\_launch\_template) | ../../ | n/a |
 | <a name="module_requirements"></a> [requirements](#module\_requirements) | ../../ | n/a |
+| <a name="module_spot_one_time"></a> [spot\_one\_time](#module\_spot\_one\_time) | ../../ | n/a |
 | <a name="module_warm_pool"></a> [warm\_pool](#module\_warm\_pool) | ../../ | n/a |
 
 ## Resources

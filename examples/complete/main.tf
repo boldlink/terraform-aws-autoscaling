@@ -403,3 +403,51 @@ module "warm_pool" {
 
   tags = local.tags
 }
+
+## Auto Scaling only supports the 'one-time' Spot instance type with no duration
+module "spot_one_time" {
+  #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                               = "../../"
+  name                                 = "spot-one-time-${var.name}"
+  min_size                             = var.min_size
+  max_size                             = var.max_size
+  desired_capacity                     = var.desired_capacity
+  vpc_id                               = local.vpc_id
+  vpc_zone_identifier                  = local.subnet_id
+  instance_initiated_shutdown_behavior = "terminate"
+
+  instance_refresh = {
+    strategy = "Rolling"
+    triggers = ["tag"]
+
+    preferences = {
+      min_healthy_percentage = 50
+      instance_warmup        = 300
+    }
+  }
+
+  # Launch template
+  launch_template_description = "Spot instances lt"
+  update_default_version      = true
+  create_launch_template      = true
+  image_id                    = data.aws_ami.amazon_linux.id
+  instance_type               = var.instance_type
+  install_ssm_agent           = true
+
+  # Timeouts
+  timeouts = {
+    create = "10m"
+    delete = "10m"
+  }
+
+  ebs_optimized = true
+
+  instance_market_options = {
+    market_type = "spot"
+    spot_options = {
+      max_price          = "0.04"
+      spot_instance_type = "one-time"
+    }
+  }
+}
