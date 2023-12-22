@@ -29,6 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
 
+##  [2.0.5] - 2023-12-22
+- fixed and showcased the usage of spot instance_market_options
+
 ##  [2.0.4] - 2023-12-20
 - fix: fix and showcased the usage of warm pool
 
@@ -97,8 +100,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.4...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.5...HEAD
 
+[2.0.5]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.5
 [2.0.4]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.4
 [2.0.3]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.3
 [2.0.2]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.2

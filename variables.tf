@@ -391,7 +391,7 @@ variable "hibernation_options" {
 }
 
 variable "instance_market_options" {
-  type        = map(string)
+  type        = any
   description = "(Optional) The market (purchasing) option for the instance."
   default     = {}
 }
