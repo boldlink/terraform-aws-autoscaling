@@ -490,7 +490,7 @@ module "spot_one_time" {
   instance_market_options = {
     market_type = "spot"
     spot_options = {
-      max_price          = "0.04"
+      max_price          = "0.05"
       spot_instance_type = "one-time"
     }
   }
