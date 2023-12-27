@@ -188,13 +188,11 @@ module "complete" {
   #  }
   #]
 
+  #tenancy must be host for one to use this
   placement = {
-    #affinity          = "default" #tenancy must be host for one to use this
     availability_zone = local.azs
     group_name        = aws_placement_group.main.name
-    #host_id           = "h-0123456789abcdef0"
-    #spread_domain     = "d-0123456789abcdef0"
-    tenancy = "default"
+    tenancy           = "default"
   }
 
   network_interfaces = [
