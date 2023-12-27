@@ -278,220 +278,220 @@ module "complete" {
   }
 }
 
-# module "custom_metrics" {
-#   #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
-#   #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
-#   source                 = "../../"
-#   name                   = "${var.name}-custom-metrics"
-#   min_size               = 1
-#   max_size               = 3
-#   desired_capacity       = 1
-#   vpc_zone_identifier    = [local.private_subnets]
-#   create_launch_template = true
-#   instance_type          = "t3.micro"
-#   image_id               = data.aws_ami.amazon_linux.id
-#   vpc_id                 = local.vpc_id
-#   tags                   = merge({ "Name" = "${var.name}-custom-metrics" }, var.tags)
-#
-#   schedules = {
-#     night = {
-#       start_time = "2024-12-15T18:00:00Z"
-#       end_time   = "2024-12-20T06:00:00Z"
-#     }
-#   }
-#
-#   autoscaling_policy = {
-#
-#     custom_metrics = {
-#
-#       policy_type               = "TargetTrackingScaling"
-#       estimated_instance_warmup = 180
-#
-#       target_tracking_configuration = {
-#         target_value = 50.0
-#
-#         customized_metric_specification = {
-#           #metric_name = "CustomMetrics" # Conflicts with metrics
-#           #namespace   = "EC2Custom"
-#           #statistic   = "Average"
-#           #unit        = "Count"
-#
-#           metrics = [
-#             {
-#               label = "Get the queue size (the number of messages waiting to be processed)"
-#               id    = "m1"
-#               metric_stat = {
-#                 metric = {
-#                   metric_name = "ApproximateNumberOfMessagesVisible"
-#                   namespace   = "AWS/SQS"
-#                   dimensions = [
-#                     {
-#                       name  = "QueueName"
-#                       value = "my-queue"
-#                     }
-#                   ]
-#                 }
-#                 stat = "Sum"
-#               }
-#               return_data = false
-#             },
-#             {
-#               label = "Get the group size (the number of InService instances)"
-#               id    = "m2"
-#               metric_stat = {
-#                 metric = {
-#                   metric_name = "GroupInServiceInstances"
-#                   namespace   = "AWS/AutoScaling"
-#                   dimensions = [
-#                     {
-#                       name  = "${var.name}-custom-metrics"
-#                       value = "my-asg"
-#                     }
-#                   ]
-#                 }
-#                 stat = "Average"
-#               }
-#               return_data = false #Exactly one element of the metrics list should return data
-#             },
-#             {
-#               label       = "Calculate the backlog per instance"
-#               id          = "e1"
-#               expression  = "m1 / m2"
-#               return_data = true
-#             }
-#           ]
-#         }
-#       }
-#     }
-#   }
-# }
-#
-# module "requirements" {
-#   #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
-#   #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
-#   source                     = "../../"
-#   name                       = "${var.name}-requirements"
-#   min_size                   = 1
-#   max_size                   = 3
-#   desired_capacity           = 1
-#   desired_capacity_type      = "units"
-#   vpc_zone_identifier        = [local.private_subnets]
-#   create_launch_template     = true
-#   image_id                   = data.aws_ami.amazon_linux.id
-#   vpc_id                     = local.vpc_id
-#   use_mixed_instances_policy = true
-#
-#   mixed_instances_policy = {
-#     instances_distribution = {
-#       on_demand_allocation_strategy            = "lowest-price"
-#       on_demand_base_capacity                  = 1
-#       on_demand_percentage_above_base_capacity = 50
-#     }
-#
-#     override = [
-#       {
-#         instance_requirements = {
-#           bare_metal            = "excluded"
-#           burstable_performance = "excluded"
-#           cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
-#           instance_generations  = ["current"]
-#           local_storage         = "excluded"
-#
-#           memory_mib = {
-#             min = 1024
-#             max = 8192
-#           }
-#
-#           network_interface_count = {
-#             min = 1
-#             max = 2
-#           }
-#
-#           on_demand_max_price_percentage_over_lowest_price = 10
-#           require_hibernate_support                        = false
-#           spot_max_price_percentage_over_lowest_price      = 10
-#
-#           vcpu_count = {
-#             min = 1
-#             max = 5
-#           }
-#         }
-#       }
-#     ]
-#   }
-# }
-#
-# module "warm_pool" {
-#   #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
-#   #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
-#   source                 = "../../"
-#   name                   = "${var.name}-warm-pool"
-#   min_size               = 0
-#   max_size               = 2
-#   desired_capacity       = 1
-#   vpc_zone_identifier    = [local.private_subnets]
-#   create_launch_template = true
-#   image_id               = data.aws_ami.amazon_linux.id
-#   instance_type          = "t3.nano"
-#   vpc_id                 = local.vpc_id
-#
-#   warm_pool = {
-#     pool_state                  = "Stopped"
-#     min_size                    = 2
-#     max_group_prepared_capacity = 3
-#
-#     instance_reuse_policy = {
-#       reuse_on_scale_in = true
-#     }
-#   }
-#
-#   tags = local.tags
-# }
-#
-# ## Auto Scaling only supports the 'one-time' Spot instance type with no duration
-# module "spot_one_time" {
-#   #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
-#   #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
-#   source                               = "../../"
-#   name                                 = "spot-one-time-${var.name}"
-#   min_size                             = var.min_size
-#   max_size                             = var.max_size
-#   desired_capacity                     = var.desired_capacity
-#   vpc_id                               = local.vpc_id
-#   vpc_zone_identifier                  = local.subnet_id
-#   instance_initiated_shutdown_behavior = "terminate"
-#
-#   instance_refresh = {
-#     strategy = "Rolling"
-#     triggers = ["tag"]
-#
-#     preferences = {
-#       min_healthy_percentage = 50
-#       instance_warmup        = 300
-#     }
-#   }
-#
-#   # Launch template
-#   launch_template_description = "Spot instances lt"
-#   update_default_version      = true
-#   create_launch_template      = true
-#   image_id                    = data.aws_ami.amazon_linux.id
-#   instance_type               = var.instance_type
-#   install_ssm_agent           = true
-#
-#   # Timeouts
-#   timeouts = {
-#     create = "10m"
-#     delete = "10m"
-#   }
-#
-#   ebs_optimized = true
-#
-#   instance_market_options = {
-#     market_type = "spot"
-#     spot_options = {
-#       max_price          = "0.04"
-#       spot_instance_type = "one-time"
-#     }
-#   }
-# }
+module "custom_metrics" {
+  #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                 = "../../"
+  name                   = "${var.name}-custom-metrics"
+  min_size               = 1
+  max_size               = 3
+  desired_capacity       = 1
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  instance_type          = "t3.micro"
+  image_id               = data.aws_ami.amazon_linux.id
+  vpc_id                 = local.vpc_id
+  tags                   = merge({ "Name" = "${var.name}-custom-metrics" }, var.tags)
+
+  schedules = {
+    night = {
+      start_time = "2024-12-15T18:00:00Z"
+      end_time   = "2024-12-20T06:00:00Z"
+    }
+  }
+
+  autoscaling_policy = {
+
+    custom_metrics = {
+
+      policy_type               = "TargetTrackingScaling"
+      estimated_instance_warmup = 180
+
+      target_tracking_configuration = {
+        target_value = 50.0
+
+        customized_metric_specification = {
+          #metric_name = "CustomMetrics" # Conflicts with metrics
+          #namespace   = "EC2Custom"
+          #statistic   = "Average"
+          #unit        = "Count"
+
+          metrics = [
+            {
+              label = "Get the queue size (the number of messages waiting to be processed)"
+              id    = "m1"
+              metric_stat = {
+                metric = {
+                  metric_name = "ApproximateNumberOfMessagesVisible"
+                  namespace   = "AWS/SQS"
+                  dimensions = [
+                    {
+                      name  = "QueueName"
+                      value = "my-queue"
+                    }
+                  ]
+                }
+                stat = "Sum"
+              }
+              return_data = false
+            },
+            {
+              label = "Get the group size (the number of InService instances)"
+              id    = "m2"
+              metric_stat = {
+                metric = {
+                  metric_name = "GroupInServiceInstances"
+                  namespace   = "AWS/AutoScaling"
+                  dimensions = [
+                    {
+                      name  = "${var.name}-custom-metrics"
+                      value = "my-asg"
+                    }
+                  ]
+                }
+                stat = "Average"
+              }
+              return_data = false #Exactly one element of the metrics list should return data
+            },
+            {
+              label       = "Calculate the backlog per instance"
+              id          = "e1"
+              expression  = "m1 / m2"
+              return_data = true
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+
+module "requirements" {
+  #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                     = "../../"
+  name                       = "${var.name}-requirements"
+  min_size                   = 1
+  max_size                   = 3
+  desired_capacity           = 1
+  desired_capacity_type      = "units"
+  vpc_zone_identifier        = [local.private_subnets]
+  create_launch_template     = true
+  image_id                   = data.aws_ami.amazon_linux.id
+  vpc_id                     = local.vpc_id
+  use_mixed_instances_policy = true
+
+  mixed_instances_policy = {
+    instances_distribution = {
+      on_demand_allocation_strategy            = "lowest-price"
+      on_demand_base_capacity                  = 1
+      on_demand_percentage_above_base_capacity = 50
+    }
+
+    override = [
+      {
+        instance_requirements = {
+          bare_metal            = "excluded"
+          burstable_performance = "excluded"
+          cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
+          instance_generations  = ["current"]
+          local_storage         = "excluded"
+
+          memory_mib = {
+            min = 1024
+            max = 8192
+          }
+
+          network_interface_count = {
+            min = 1
+            max = 2
+          }
+
+          on_demand_max_price_percentage_over_lowest_price = 10
+          require_hibernate_support                        = false
+          spot_max_price_percentage_over_lowest_price      = 10
+
+          vcpu_count = {
+            min = 1
+            max = 5
+          }
+        }
+      }
+    ]
+  }
+}
+
+module "warm_pool" {
+  #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                 = "../../"
+  name                   = "${var.name}-warm-pool"
+  min_size               = 0
+  max_size               = 2
+  desired_capacity       = 1
+  vpc_zone_identifier    = [local.private_subnets]
+  create_launch_template = true
+  image_id               = data.aws_ami.amazon_linux.id
+  instance_type          = "t3.nano"
+  vpc_id                 = local.vpc_id
+
+  warm_pool = {
+    pool_state                  = "Stopped"
+    min_size                    = 2
+    max_group_prepared_capacity = 3
+
+    instance_reuse_policy = {
+      reuse_on_scale_in = true
+    }
+  }
+
+  tags = local.tags
+}
+
+## Auto Scaling only supports the 'one-time' Spot instance type with no duration
+module "spot_one_time" {
+  #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                               = "../../"
+  name                                 = "spot-one-time-${var.name}"
+  min_size                             = var.min_size
+  max_size                             = var.max_size
+  desired_capacity                     = var.desired_capacity
+  vpc_id                               = local.vpc_id
+  vpc_zone_identifier                  = local.subnet_id
+  instance_initiated_shutdown_behavior = "terminate"
+
+  instance_refresh = {
+    strategy = "Rolling"
+    triggers = ["tag"]
+
+    preferences = {
+      min_healthy_percentage = 50
+      instance_warmup        = 300
+    }
+  }
+
+  # Launch template
+  launch_template_description = "Spot instances lt"
+  update_default_version      = true
+  create_launch_template      = true
+  image_id                    = data.aws_ami.amazon_linux.id
+  instance_type               = var.instance_type
+  install_ssm_agent           = true
+
+  # Timeouts
+  timeouts = {
+    create = "10m"
+    delete = "10m"
+  }
+
+  ebs_optimized = true
+
+  instance_market_options = {
+    market_type = "spot"
+    spot_options = {
+      max_price          = "0.04"
+      spot_instance_type = "one-time"
+    }
+  }
+}
