@@ -30,6 +30,12 @@ module "ebs_kms" {
   tags             = var.tags
 }
 
+resource "aws_placement_group" "main" {
+  name     = "${var.name}-pg"
+  strategy = "partition"
+  tags     = var.tags
+}
+
 module "complete" {
   #checkov:skip=CKV_AWS_260
   #checkov:skip=CKV_AWS_290
@@ -42,6 +48,12 @@ module "complete" {
   wait_for_capacity_timeout = var.wait_for_capacity_timeout
   health_check_type         = var.health_check_type
   vpc_zone_identifier       = local.subnet_id
+  force_delete              = true
+  default_cooldown          = 300
+  termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
+  suspended_processes       = ["HealthCheck"]
+  placement_group           = aws_placement_group.main.id
+  capacity_rebalance        = true
 
   initial_lifecycle_hooks = [
     {
@@ -156,6 +168,33 @@ module "complete" {
     capacity_reservation_preference = "open"
   }
 
+  cpu_options = {
+    core_count       = 1
+    threads_per_core = 2
+  }
+
+  enclave_options = {
+    enabled = false
+  }
+
+  hibernation_options = {
+    configured = false
+  }
+
+  # Error: creating License Manager License Configuration (Example): AccessDeniedException: Service role not found. Consult setup procedures in License Manager User Guide and create the required role for the service.
+  #license_specifications = [
+  #  {
+  #    license_configuration_arn = aws_licensemanager_license_configuration.main.arn
+  #  }
+  #]
+
+  #tenancy must be host for one to use this
+  placement = {
+    availability_zone = local.azs
+    group_name        = aws_placement_group.main.name
+    tenancy           = "default"
+  }
+
   network_interfaces = [
     {
       delete_on_termination = true
@@ -169,10 +208,6 @@ module "complete" {
     http_tokens                 = "required"
     http_put_response_hop_limit = 1
     http_endpoint               = "enabled"
-  }
-
-  placement = {
-    availability_zone = local.azs
   }
 
   tags = local.tags
@@ -255,6 +290,13 @@ module "custom_metrics" {
   image_id               = data.aws_ami.amazon_linux.id
   vpc_id                 = local.vpc_id
   tags                   = merge({ "Name" = "${var.name}-custom-metrics" }, var.tags)
+
+  schedules = {
+    night = {
+      start_time = "2024-12-15T18:00:00Z"
+      end_time   = "2024-12-20T06:00:00Z"
+    }
+  }
 
   autoscaling_policy = {
 
@@ -446,7 +488,7 @@ module "spot_one_time" {
   instance_market_options = {
     market_type = "spot"
     spot_options = {
-      max_price          = "0.04"
+      max_price          = "0.05"
       spot_instance_type = "one-time"
     }
   }

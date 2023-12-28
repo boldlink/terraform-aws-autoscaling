@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
 
+##  [2.0.6] - 2023-12-27
+- showcased the usage of external placement group, schedule start and end, cpu_options, enclave options and hibernation options
+- showcased the usage of termination_policies, suspended_processes, capacity_rebalance
+
 ##  [2.0.5] - 2023-12-22
 - fixed and showcased the usage of spot instance_market_options
 
