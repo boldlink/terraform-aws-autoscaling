@@ -33,6 +33,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_accelarators"></a> [accelarators](#module\_accelarators) | ../../ | n/a |
 | <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
 | <a name="module_custom_metrics"></a> [custom\_metrics](#module\_custom\_metrics) | ../../ | n/a |
 | <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
