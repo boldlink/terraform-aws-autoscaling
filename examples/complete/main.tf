@@ -493,3 +493,63 @@ module "spot_one_time" {
     }
   }
 }
+
+module "accelarators" {
+  #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
+  source                     = "../../"
+  name                       = "${var.name}-accelarators"
+  min_size                   = 1
+  max_size                   = 3
+  desired_capacity           = 1
+  desired_capacity_type      = "units"
+  vpc_zone_identifier        = [local.private_subnets]
+  create_launch_template     = true
+  image_id                   = data.aws_ami.amazon_linux.id
+  vpc_id                     = local.vpc_id
+  use_mixed_instances_policy = true
+
+  mixed_instances_policy = {
+    override = [
+      {
+        instance_requirements = {
+          accelerator_count = {
+            min = 1
+            max = 8
+          }
+
+          accelerator_manufacturers = ["amazon-web-services", "amd", "nvidia"]
+          #accelerator_names         = ["t4"]
+
+          accelerator_total_memory_mib = {
+            min = 8192
+            max = 20480
+          }
+
+          accelerator_types = ["gpu", "inference"]
+          bare_metal        = "excluded"
+
+          burstable_performance = "excluded"
+          cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
+          #           local_storage         = "included"
+          #           local_storage_types   = ["ssd"]
+
+          vcpu_count = {
+            min = 4
+            max = 8
+          }
+
+          memory_mib = {
+            min = 8192
+            max = 20480
+          }
+
+          #           total_local_storage_gb = {
+          #             min = 8
+          #             max = 30
+          #           }
+        }
+      }
+    ]
+  }
+}
