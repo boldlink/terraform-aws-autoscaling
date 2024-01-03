@@ -29,6 +29,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: CKV_AWS_341 "Ensure Launch template should not have a metadata response hop limit greater than 1"
 - fix: CKV_TF_1 "Ensure Terraform module sources use a commit hash"
 
+##  [2.1.0] - 2024-01-03
+- feat: removed `elastic_gpu_specifications` support as it will no longer be supported by AWS. See [here](https://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/elastic-graphics.html#elastic-gpus-basics)
+- feat: removed `elastic_inference_accelerator` support as it will no longer be supported by AWS for new customers. See [here](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-inference.html)
+- showcased the usage of `max_instance_lifetime` in complete example
+- showcased the usage of `protect_from_scale_in` in complete example
+
 ##  [2.0.7] - 2023-12-28
 - showcased the usage of accelerators specification for autoscaling group
 
@@ -107,8 +113,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial commit
 
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.0.7...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-autoscaling/compare/2.1.0...HEAD
 
+[2.1.0]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.1.0
 [2.0.7]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.7
 [2.0.6]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.6
 [2.0.5]: https://github.com/boldlink/terraform-aws-autoscaling/releases/tag/2.0.5

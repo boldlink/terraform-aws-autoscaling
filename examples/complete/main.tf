@@ -53,6 +53,8 @@ module "complete" {
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
   suspended_processes       = ["HealthCheck"]
   placement_group           = aws_placement_group.main.id
+  max_instance_lifetime     = 86400
+  protect_from_scale_in     = false
   capacity_rebalance        = true
 
   initial_lifecycle_hooks = [
