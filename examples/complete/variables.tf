@@ -73,7 +73,7 @@ variable "description" {
 variable "instance_type" {
   type        = string
   description = "Specify the instance type"
-  default     = "c4.large"
+  default     = "t3.medium"
 }
 
 variable "install_ssm_agent" {
