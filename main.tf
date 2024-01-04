@@ -1,10 +1,3 @@
-##### Autoscaling
-locals {
-  launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
-  launch_template_id      = var.create_launch_template ? aws_launch_template.main[0].id : var.launch_template_id
-  launch_template_version = coalesce(var.launch_template_version, try(aws_launch_template.main[0].latest_version, null), var.external_launch_template_version)
-}
-
 ### Cloudwatch resources
 resource "aws_kms_key" "cloudwatch" {
   count                   = var.install_cloudwatch_agent ? 1 : 0

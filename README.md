@@ -49,7 +49,7 @@ You can use Boldlink VPC Endpoints Terraform module [here](https://github.com/bo
 
 ## Usage
 **NOTE**: These examples use the latest version of this module
-- As of April 15, 2023 and September 5, 2023 AWS is no longer accepting new customer accounts for `Amazon Elastic Inference` and `Amazon Elastic Graphics` respectively. Therefore, as of release `2.1.0` we have removed the support for these options from this module.
+- As of April 15, 2023 and September 5, 2023 AWS is no longer accepting new customer accounts for `Amazon Elastic Inference` and `Amazon Elastic Graphics` respectively. Therefore, as of release `2.1.0` we have removed these options from this module.
 
 ```hcl
 module "minimal" {
