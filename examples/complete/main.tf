@@ -521,7 +521,6 @@ module "accelarators" {
           }
 
           accelerator_manufacturers = ["amazon-web-services", "amd", "nvidia"]
-          #accelerator_names         = ["t4"]
 
           accelerator_total_memory_mib = {
             min = 8192
@@ -533,8 +532,6 @@ module "accelarators" {
 
           burstable_performance = "excluded"
           cpu_manufacturers     = ["amazon-web-services", "amd", "intel"]
-          #           local_storage         = "included"
-          #           local_storage_types   = ["ssd"]
 
           vcpu_count = {
             min = 4
@@ -545,11 +542,6 @@ module "accelarators" {
             min = 8192
             max = 20480
           }
-
-          #           total_local_storage_gb = {
-          #             min = 8
-          #             max = 30
-          #           }
         }
       }
     ]
