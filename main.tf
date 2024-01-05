@@ -1,10 +1,3 @@
-##### Autoscaling
-locals {
-  launch_template         = var.external_launch_template_name == null ? var.name : var.external_launch_template_name
-  launch_template_id      = var.create_launch_template ? aws_launch_template.main[0].id : var.launch_template_id
-  launch_template_version = coalesce(var.launch_template_version, try(aws_launch_template.main[0].latest_version, null), var.external_launch_template_version)
-}
-
 ### Cloudwatch resources
 resource "aws_kms_key" "cloudwatch" {
   count                   = var.install_cloudwatch_agent ? 1 : 0
@@ -466,20 +459,6 @@ resource "aws_launch_template" "main" {
     for_each = length(var.credit_specification) > 0 ? [var.credit_specification] : []
     content {
       cpu_credits = credit_specification.value.cpu_credits
-    }
-  }
-
-  dynamic "elastic_gpu_specifications" {
-    for_each = length(var.elastic_gpu_specifications) > 0 ? [var.elastic_gpu_specifications] : []
-    content {
-      type = elastic_gpu_specifications.value.type
-    }
-  }
-
-  dynamic "elastic_inference_accelerator" {
-    for_each = length(var.elastic_inference_accelerator) > 0 ? [var.elastic_inference_accelerator] : []
-    content {
-      type = elastic_inference_accelerator.value.type
     }
   }
 
