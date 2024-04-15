@@ -78,3 +78,15 @@ variable "tags" {
     LayerId            = "cExample"
   }
 }
+
+variable "deletion_window_in_days" {
+  description = "The number of days before the key is deleted"
+  type        = number
+  default     = 7
+}
+
+variable "install_cloudwatch_agent" {
+  type        = bool
+  description = "Specify whether to have cloudwatch agent installed in created instances"
+  default     = true
+}

@@ -27,12 +27,13 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.31.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.25.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_external_kms"></a> [external\_kms](#module\_external\_kms) | boldlink/kms/aws | 1.2.0 |
 | <a name="module_mixed_instances"></a> [mixed\_instances](#module\_mixed\_instances) | ../../ | n/a |
 
 ## Resources
@@ -40,6 +41,9 @@
 | Name | Type |
 |------|------|
 | [aws_ami.amazon_linux](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.supporting](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -50,8 +54,10 @@
 |------|-------------|------|---------|:--------:|
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | The architecture of the instance to be launched | `string` | `"x86_64"` | no |
 | <a name="input_create_launch_template"></a> [create\_launch\_template](#input\_create\_launch\_template) | Specify whether to create launch template | `bool` | `true` | no |
+| <a name="input_deletion_window_in_days"></a> [deletion\_window\_in\_days](#input\_deletion\_window\_in\_days) | The number of days before the key is deleted | `number` | `7` | no |
 | <a name="input_description"></a> [description](#input\_description) | The description of the launch template | `string` | `"Complete launch template example"` | no |
 | <a name="input_desired_capacity"></a> [desired\_capacity](#input\_desired\_capacity) | The number of Amazon EC2 instances that should be running in the group. | `number` | `1` | no |
+| <a name="input_install_cloudwatch_agent"></a> [install\_cloudwatch\_agent](#input\_install\_cloudwatch\_agent) | Specify whether to have cloudwatch agent installed in created instances | `bool` | `true` | no |
 | <a name="input_install_ssm_agent"></a> [install\_ssm\_agent](#input\_install\_ssm\_agent) | Whether to install ssm agent | `bool` | `true` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Specify the instance type | `string` | `"t3.medium"` | no |
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | The maximum size of the Auto Scaling Group. | `number` | `2` | no |
