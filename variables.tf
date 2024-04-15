@@ -530,6 +530,12 @@ variable "sns_kms_master_key_id" {
   default     = "alias/aws/sns"
 }
 
+variable "create_kms_key" {
+  description = "Whether to create KMS Key for Logs encryption"
+  type        = bool
+  default     = false
+}
+
 variable "kms_key_id" {
   description = "(Optional) The ARN of the KMS Key to use when encrypting log data. Please note, after the AWS KMS CMK is disassociated from the log group, AWS CloudWatch Logs stops encrypting newly ingested data for the log group. All previously ingested data remains encrypted, and AWS CloudWatch Logs requires permissions for the CMK whenever the encrypted data is requested."
   type        = string

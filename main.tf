@@ -1,6 +1,6 @@
 ### Cloudwatch resources
 resource "aws_kms_key" "cloudwatch" {
-  count                   = var.install_cloudwatch_agent && var.kms_key_id == null ? 1 : 0
+  count                   = var.install_cloudwatch_agent && var.create_kms_key ? 1 : 0
   description             = "${var.name} Log Group KMS key"
   enable_key_rotation     = var.enable_key_rotation
   policy                  = local.kms_policy
@@ -12,7 +12,7 @@ resource "aws_cloudwatch_log_group" "main" {
   count             = var.install_cloudwatch_agent ? 1 : 0
   name              = "/aws/asg/${var.name}"
   retention_in_days = var.retention_in_days
-  kms_key_id        = var.kms_key_id == null ? aws_kms_key.cloudwatch[0].arn : var.kms_key_id
+  kms_key_id        = var.create_kms_key ? aws_kms_key.cloudwatch[0].arn : var.kms_key_id
   tags              = var.tags
 }
 
