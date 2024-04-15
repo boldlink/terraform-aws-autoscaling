@@ -24,7 +24,7 @@ module "asg_with_external_lt" {
   desired_capacity         = 1
   vpc_zone_identifier      = [local.private_subnets]
   launch_template_id       = aws_launch_template.external.id
-  tags                     = local.tags
+  tags                     = var.tags
   depends_on               = [aws_launch_template.external]
   enable_asg_events_notify = true
   topic_arn                = module.sns_topic.arn
@@ -34,7 +34,7 @@ module "asg_with_external_lt" {
 
 module "ebs_kms" {
   source           = "boldlink/kms/aws"
-  version          = "1.1.0"
+  version          = "1.2.0"
   description      = "AWS CMK for encrypting EC2 ebs volumes"
   create_kms_alias = true
   kms_policy       = local.kms_policy
@@ -71,6 +71,8 @@ module "complete" {
   enable_asg_events_notify  = true
   create_asg_sns_topic      = true
   sns_topic_name            = "${var.name}-topic"
+  create_kms_key            = false
+  kms_key_id                = module.ebs_kms.arn
 
   initial_lifecycle_hooks = [
     {
@@ -462,7 +464,7 @@ module "warm_pool" {
     }
   }
 
-  tags = local.tags
+  tags = var.tags
 }
 
 ## Auto Scaling only supports the 'one-time' Spot instance type with no duration
@@ -514,7 +516,6 @@ module "spot_one_time" {
 }
 
 ## Autoscaling Group with Accelerators example
-
 module "accelarators" {
   #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"

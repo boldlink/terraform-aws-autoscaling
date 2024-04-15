@@ -37,7 +37,7 @@
 | <a name="module_asg_with_external_lt"></a> [asg\_with\_external\_lt](#module\_asg\_with\_external\_lt) | ../../ | n/a |
 | <a name="module_complete"></a> [complete](#module\_complete) | ../../ | n/a |
 | <a name="module_custom_metrics"></a> [custom\_metrics](#module\_custom\_metrics) | ../../ | n/a |
-| <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.1.0 |
+| <a name="module_ebs_kms"></a> [ebs\_kms](#module\_ebs\_kms) | boldlink/kms/aws | 1.2.0 |
 | <a name="module_requirements"></a> [requirements](#module\_requirements) | ../../ | n/a |
 | <a name="module_sns_topic"></a> [sns\_topic](#module\_sns\_topic) | boldlink/sns/aws | 1.1.2 |
 | <a name="module_spot_one_time"></a> [spot\_one\_time](#module\_spot\_one\_time) | ../../ | n/a |
@@ -53,6 +53,7 @@
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.additional_role_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [aws_subnet.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnet) | data source |
 | [aws_subnets.private](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/subnets) | data source |
 | [aws_vpc.supporting](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
@@ -79,9 +80,7 @@
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_outputs"></a> [outputs](#output\_outputs) | Output for various resources in this module |
+No outputs.
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 
 ## Third party software
