@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.2.0] - 2024-04-15
 - feat: option to use an external key for cloudwatch logs encryption
-- feat: option to use an external sns topi for autoscaling notifications
+- feat: option to use an external sns topic for autoscaling notifications
 - fix: autoscaling tags variable
 
 ##  [2.1.0] - 2024-01-03
