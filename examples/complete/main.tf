@@ -1,3 +1,4 @@
+## Autoscaling Group with External Launch Template & External sns
 resource "aws_launch_template" "external" {
   #checkov:skip=CKV_AWS_79: "Ensure Instance Metadata Service Version 1 is not enabled"
   name          = "${var.name}-external-lt"
@@ -5,24 +6,35 @@ resource "aws_launch_template" "external" {
   instance_type = "t3.micro"
 }
 
-module "external_launch_template" {
+module "sns_topic" {
+  source  = "boldlink/sns/aws"
+  version = "1.1.2"
+  name    = "${var.name}-external-sns"
+  tags    = local.tags
+}
+
+module "asg_with_external_lt" {
   #checkov:skip=CKV_AWS_260
   #checkov:skip=CKV_AWS_290
   #checkov:skip=CKV_AWS_355
-  source              = "../../"
-  name                = "${var.name}-external-lt"
-  min_size            = 0
-  max_size            = 2
-  desired_capacity    = 1
-  vpc_zone_identifier = [local.private_subnets]
-  launch_template_id  = aws_launch_template.external.id
-  tags                = local.tags
-  depends_on          = [aws_launch_template.external]
+  source                   = "../../"
+  name                     = "${var.name}-external-lt"
+  min_size                 = 0
+  max_size                 = 2
+  desired_capacity         = 1
+  vpc_zone_identifier      = [local.private_subnets]
+  launch_template_id       = aws_launch_template.external.id
+  tags                     = var.tags
+  depends_on               = [aws_launch_template.external]
+  enable_asg_events_notify = true
+  topic_arn                = module.sns_topic.arn
 }
+
+## Complete Autoscaling Group Example
 
 module "ebs_kms" {
   source           = "boldlink/kms/aws"
-  version          = "1.1.0"
+  version          = "1.2.0"
   description      = "AWS CMK for encrypting EC2 ebs volumes"
   create_kms_alias = true
   kms_policy       = local.kms_policy
@@ -56,6 +68,11 @@ module "complete" {
   max_instance_lifetime     = 86400
   protect_from_scale_in     = false
   capacity_rebalance        = true
+  enable_asg_events_notify  = true
+  create_asg_sns_topic      = true
+  sns_topic_name            = "${var.name}-topic"
+  create_kms_key            = false
+  kms_key_id                = module.ebs_kms.arn
 
   initial_lifecycle_hooks = [
     {
@@ -278,6 +295,7 @@ module "complete" {
   }
 }
 
+## Autoscaling Group with custom metrics example
 module "custom_metrics" {
   #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
@@ -421,6 +439,7 @@ module "requirements" {
   }
 }
 
+## Autoscaling Group with Warm Pool example
 module "warm_pool" {
   #checkov:skip=CKV_AWS_290: "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_355: "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"
@@ -445,7 +464,7 @@ module "warm_pool" {
     }
   }
 
-  tags = local.tags
+  tags = var.tags
 }
 
 ## Auto Scaling only supports the 'one-time' Spot instance type with no duration
@@ -496,6 +515,7 @@ module "spot_one_time" {
   }
 }
 
+## Autoscaling Group with Accelerators example
 module "accelarators" {
   #checkov:skip=CKV_AWS_290 "Ensure IAM policies does not allow write access without constraints"
   #checkov:skip=CKV_AWS_355 "Ensure no IAM policies documents allow "*" as a statement's resource for restrictable actions"

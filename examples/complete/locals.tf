@@ -15,6 +15,7 @@ locals {
   account_id      = data.aws_caller_identity.current.account_id
   partition       = data.aws_partition.current.partition
   dns_suffix      = data.aws_partition.current.dns_suffix
+  region          = data.aws_region.current.name
 
   kms_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -39,20 +40,20 @@ locals {
         "Resource" : "*"
       },
       {
-        "Sid" : "Allow EKS Nodes to Use the Key",
+        "Sid" : "Allow Cloud Watch Logs",
         "Effect" : "Allow",
         "Principal" : {
-          "Service" : "ec2.amazonaws.com"
+          "Service" : "logs.${local.region}.${local.dns_suffix}"
         },
         "Action" : [
-          "kms:Encrypt",
-          "kms:Decrypt",
+          "kms:Encrypt*",
+          "kms:Decrypt*",
           "kms:ReEncrypt*",
           "kms:GenerateDataKey*",
-          "kms:DescribeKey"
+          "kms:Describe*"
         ],
         "Resource" : "*"
-      }
+      },
     ]
     }
   )

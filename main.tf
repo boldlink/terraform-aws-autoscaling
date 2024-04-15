@@ -1,6 +1,6 @@
 ### Cloudwatch resources
 resource "aws_kms_key" "cloudwatch" {
-  count                   = var.install_cloudwatch_agent ? 1 : 0
+  count                   = var.install_cloudwatch_agent && var.create_kms_key ? 1 : 0
   description             = "${var.name} Log Group KMS key"
   enable_key_rotation     = var.enable_key_rotation
   policy                  = local.kms_policy
@@ -12,7 +12,7 @@ resource "aws_cloudwatch_log_group" "main" {
   count             = var.install_cloudwatch_agent ? 1 : 0
   name              = "/aws/asg/${var.name}"
   retention_in_days = var.retention_in_days
-  kms_key_id        = aws_kms_key.cloudwatch[0].arn
+  kms_key_id        = var.create_kms_key ? aws_kms_key.cloudwatch[0].arn : var.kms_key_id
   tags              = var.tags
 }
 
@@ -374,7 +374,7 @@ resource "aws_autoscaling_group" "main" {
   }
 
   dynamic "tag" {
-    for_each = var.tag
+    for_each = var.tags
     content {
       key                 = tag.key
       value               = tag.value
@@ -733,15 +733,18 @@ resource "aws_autoscaling_policy" "main" {
 }
 
 resource "aws_autoscaling_notification" "main" {
+  count = var.enable_asg_events_notify ? 1 : 0
   group_names = [
     aws_autoscaling_group.main.name,
   ]
 
   notifications = var.sns_notifications
-  topic_arn     = aws_sns_topic.main.arn
+  topic_arn     = var.create_asg_sns_topic ? aws_sns_topic.main[0].arn : var.topic_arn
 }
 
 resource "aws_sns_topic" "main" {
+  count             = var.enable_asg_events_notify && var.create_asg_sns_topic ? 1 : 0
   name              = var.sns_topic_name
   kms_master_key_id = var.sns_kms_master_key_id
+  tags              = var.tags
 }
