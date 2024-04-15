@@ -234,12 +234,6 @@ variable "warm_pool" {
   default     = {}
 }
 
-variable "tag" {
-  type        = map(string)
-  description = "(Optional) Configuration block(s) containing resource tags."
-  default     = {}
-}
-
 variable "schedules" {
   type        = map(any)
   description = "Schedules configuration block"
@@ -495,6 +489,18 @@ variable "extra_script" {
 ##############
 ###Alarms
 ##############
+variable "enable_asg_events_notify" {
+  description = "Whether to create AutoScaling Group with Notification support, via SNS Topics"
+  type        = bool
+  default     = false
+}
+
+variable "create_asg_sns_topic" {
+  description = "Whether to create SNS topic for the AutoScaling Group Notifications"
+  type        = bool
+  default     = false
+}
+
 variable "sns_notifications" {
   type        = list(string)
   description = "(Required) A list of Notification Types that trigger notifications."
@@ -504,6 +510,12 @@ variable "sns_notifications" {
     "autoscaling:EC2_INSTANCE_TERMINATE",
     "autoscaling:EC2_INSTANCE_TERMINATE_ERROR",
   ]
+}
+
+variable "topic_arn" {
+  description = "(Required) Topic ARN for notifications to be sent through"
+  type        = string
+  default     = null
 }
 
 variable "sns_topic_name" {
@@ -516,6 +528,12 @@ variable "sns_kms_master_key_id" {
   type        = string
   description = "The kms key to use for encrypting sns topic"
   default     = "alias/aws/sns"
+}
+
+variable "kms_key_id" {
+  description = "(Optional) The ARN of the KMS Key to use when encrypting log data. Please note, after the AWS KMS CMK is disassociated from the log group, AWS CloudWatch Logs stops encrypting newly ingested data for the log group. All previously ingested data remains encrypted, and AWS CloudWatch Logs requires permissions for the CMK whenever the encrypted data is requested."
+  type        = string
+  default     = null
 }
 
 ###############
